@@ -4,7 +4,7 @@ let gameState = {
     players: [],
     currentPlayerIndex: 0,
     currentRound: 1,
-    totalRounds: 6,
+    totalRounds: 20,
     gameStarted: false,
     gameEnded: false,
     language: 'pt' // Idioma padrão
@@ -369,7 +369,7 @@ const gameConfigs = {
     archery: {
         name: 'Arco e Flecha',
         icon: '🎯',
-        defaultRounds: 6,
+        defaultRounds: 20,
         scores: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
         scoreLabels: {
             10: 'Bulls Eye!',
@@ -923,7 +923,7 @@ function newGame() {
         players: [],
         currentPlayerIndex: 0,
         currentRound: 1,
-        totalRounds: 6,
+        totalRounds: 20,
         gameStarted: false,
         gameEnded: false,
         language: 'pt' // Resetar idioma

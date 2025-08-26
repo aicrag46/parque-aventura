@@ -950,6 +950,15 @@ body {
     min-height: 150px;
 }
 
+/* On small screens, remove inner scrolling to avoid nested scrolls */
+@media (max-width: 600px) {
+    .scoreboard-content {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+    }
+}
+
 .scoreboard-content::-webkit-scrollbar {
     width: 6px;
 }
