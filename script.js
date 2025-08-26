@@ -448,7 +448,11 @@ function selectGame(gameType) {
     const gameName = document.getElementById('selectedGameName');
     const roundsInput = document.getElementById('roundsInput');
     
-    if (gameIcon) gameIcon.textContent = gameConfigs[gameType].icon;
+    if (gameIcon) {
+        const iconSrc = gameType === 'archery' ? 'Tiro ao Arco.png' : 'Paintball.png';
+        const iconAlt = gameType === 'archery' ? 'Arco e Flecha' : 'Paintball';
+        gameIcon.innerHTML = `<img src="${iconSrc}" alt="${iconAlt}" class="game-icon-img">`;
+    }
     if (gameName) gameName.textContent = gameConfigs[gameType].name[gameState.language];
     if (roundsInput) roundsInput.value = gameState.totalRounds;
     
@@ -805,10 +809,13 @@ function showFinalResults() {
     const averageScore = Math.round(totalPoints / gameState.players.length);
     
     console.log('Debug - Média de Pontos:');
-    console.log('Jogadores:', gameState.players.map(p => ({ name: p.name, totalScore: p.totalScore })));
+    console.log('Jogo selecionado:', gameState.selectedGame);
+    console.log('Configuração do jogo:', gameConfigs[gameState.selectedGame]);
+    console.log('Jogadores:', gameState.players.map(p => ({ name: p.name, totalScore: p.totalScore, scores: p.scores })));
     console.log('Total de pontos:', totalPoints);
     console.log('Número de jogadores:', gameState.players.length);
     console.log('Média calculada:', averageScore);
+    console.log('Média exata (sem arredondamento):', totalPoints / gameState.players.length);
     
     const achievements = [
         { icon: '🏹', title: t.totalAccuracy, value: `${totalAccuracy}${t.percentage}` },
@@ -1168,7 +1175,9 @@ function updateInterfaceLanguage() {
     
     // Atualizar ícones dos jogos
     const selectedGameIcon = document.querySelector('#selectedGameIcon');
-    if (selectedGameIcon) {
-        selectedGameIcon.textContent = gameState.selectedGame === 'archery' ? '🏹' : '🎯';
+    if (selectedGameIcon && gameState.selectedGame) {
+        const iconSrc = gameState.selectedGame === 'archery' ? 'Tiro ao Arco.png' : 'Paintball.png';
+        const iconAlt = gameState.selectedGame === 'archery' ? 'Arco e Flecha' : 'Paintball';
+        selectedGameIcon.innerHTML = `<img src="${iconSrc}" alt="${iconAlt}" class="game-icon-img">`;
     }
 }
