@@ -717,6 +717,9 @@ function recordScore(score) {
     currentPlayer.scores.push(score);
     currentPlayer.totalScore += score;
     
+    // Debug: Verificar pontuação adicionada
+    console.log(`Debug - Pontuação registada: ${currentPlayer.name} marcou ${score} pontos. Total atual: ${currentPlayer.totalScore}`);
+    
     // Contar acertos (pontuação > 0)
     if (score > 0) {
         currentPlayer.hits++;
@@ -796,7 +799,16 @@ function showFinalResults() {
     const totalAccuracy = Math.round((sortedPlayers.reduce((sum, p) => sum + p.hits, 0) / (gameState.players.length * gameState.totalRounds)) * 100);
     const bestPlayer = sortedPlayers[0];
     const maxScore = Math.max(...gameState.players.map(p => p.totalScore));
-    const averageScore = Math.round(gameState.players.reduce((sum, p) => sum + p.totalScore, 0) / gameState.players.length);
+    
+    // Debug: Verificar cálculo da média de pontos
+    const totalPoints = gameState.players.reduce((sum, p) => sum + p.totalScore, 0);
+    const averageScore = Math.round(totalPoints / gameState.players.length);
+    
+    console.log('Debug - Média de Pontos:');
+    console.log('Jogadores:', gameState.players.map(p => ({ name: p.name, totalScore: p.totalScore })));
+    console.log('Total de pontos:', totalPoints);
+    console.log('Número de jogadores:', gameState.players.length);
+    console.log('Média calculada:', averageScore);
     
     const achievements = [
         { icon: '🏹', title: t.totalAccuracy, value: `${totalAccuracy}${t.percentage}` },
