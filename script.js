@@ -368,7 +368,7 @@ const translations = {
 const gameConfigs = {
     archery: {
         name: 'Arco e Flecha',
-        icon: '🎯',
+        icon: '🏹',
         defaultRounds: 20,
         scores: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
         scoreLabels: {
@@ -799,7 +799,7 @@ function showFinalResults() {
     const performance = Math.round((totalAccuracy + (maxScore / 100)) / 2);
     
     const achievements = [
-        { icon: '🎯', title: t.totalAccuracy, value: `${totalAccuracy}${t.percentage}` },
+        { icon: '🏹', title: t.totalAccuracy, value: `${totalAccuracy}${t.percentage}` },
         { icon: '⚡', title: t.bestPlayer, value: bestPlayer.name },
         { icon: '🔥', title: t.maxScore, value: `${maxScore} ${t.points}` },
         { icon: '🌟', title: t.performance, value: `${performance}${t.percentage}` }
@@ -981,13 +981,13 @@ function updateScoreboard() {
             roundScore.className = 'round-score';
             
             if (i < player.scores.length) {
-                roundScore.textContent = player.scores[i];
+                roundScore.innerHTML = `<div class="round-number">${i + 1}</div><div class="round-points">${player.scores[i]}</div>`;
                 // Marcar a pontuação mais recente do jogador atual
                 if (i === player.scores.length - 1 && isCurrentPlayer) {
                     roundScore.classList.add('current');
                 }
             } else {
-                roundScore.textContent = '-';
+                roundScore.innerHTML = `<div class="round-number">${i + 1}</div><div class="round-points">-</div>`;
             }
             
             playerRounds.appendChild(roundScore);
@@ -1166,6 +1166,6 @@ function updateInterfaceLanguage() {
     // Atualizar ícones dos jogos
     const selectedGameIcon = document.querySelector('#selectedGameIcon');
     if (selectedGameIcon) {
-        selectedGameIcon.textContent = gameState.selectedGame === 'archery' ? '🎯' : '🔫';
+        selectedGameIcon.textContent = gameState.selectedGame === 'archery' ? '🏹' : '🔫';
     }
 }
