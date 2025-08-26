@@ -5,6 +5,31 @@
     box-sizing: border-box;
 }
 
+/* Desativar zoom no mobile */
+html {
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* Remover animação de clique colorida no mobile */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Permitir seleção apenas em inputs */
+input, textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
 /* ==========================================
    Design System: tokens and component polish
    ========================================== */
@@ -255,6 +280,7 @@ textarea:focus-visible,
     body {
         color: var(--color-text);
         background: linear-gradient(135deg, #0b0f0d 0%, var(--color-bg) 100%);
+        background-attachment: fixed;
     }
 
     .header {
@@ -320,6 +346,7 @@ textarea:focus-visible,
 body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-2) 100%);
+    background-attachment: fixed;
     min-height: 100vh;
     color: var(--color-text);
     -webkit-text-size-adjust: 100%;

@@ -387,7 +387,7 @@ const gameConfigs = {
     },
     paintball: {
         name: 'Paintball',
-        icon: '🔫',
+        icon: '🎯',
         defaultRounds: 40,
         scores: [30, 20, 10, 8, 6, 0],
         scoreLabels: {
@@ -1157,6 +1157,6 @@ function updateInterfaceLanguage() {
     // Atualizar ícones dos jogos
     const selectedGameIcon = document.querySelector('#selectedGameIcon');
     if (selectedGameIcon) {
-        selectedGameIcon.textContent = gameState.selectedGame === 'archery' ? '🏹' : '🔫';
+        selectedGameIcon.textContent = gameState.selectedGame === 'archery' ? '🏹' : '🎯';
     }
 }
