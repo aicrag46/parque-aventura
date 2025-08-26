@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parque Aventura - Sistema de Pontuação</title>
+    <meta name="description" content="Sistema de pontuação para Arco e Flecha e Paintball">
+    <meta name="theme-color" content="#32CD32">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-container">
+                <img src="logo.png" alt="Parque Aventura" class="logo">
+            </div>
+            <h1>Parque Aventura</h1>
+            <p>Sistema de Pontuação</p>
+        </header>
+
+        <!-- Game Selection Screen -->
+        <div class="game-selection">
+            <h2 class="section-title">Escolha a Atividade</h2>
+            <div class="game-cards">
+                <div class="game-card" onclick="selectGame('archery')">
+                    <div class="game-icon">🎯</div>
+                    <h3>Arco e Flecha</h3>
+                </div>
+                <div class="game-card" onclick="selectGame('paintball')">
+                    <div class="game-icon">🔫</div>
+                    <h3>Paintball</h3>
+                </div>
+            </div>
+            
+            <!-- Seletor de idioma apenas na tela inicial -->
+            <div class="language-selector">
+                <div class="language-buttons">
+                    <button class="lang-btn active" onclick="changeLanguage('pt')" title="Português">
+                        <span class="fi fi-pt"></span>
+                    </button>
+                    <button class="lang-btn" onclick="changeLanguage('en')" title="English">
+                        <span class="fi fi-gb"></span>
+                    </button>
+                    <button class="lang-btn" onclick="changeLanguage('fr')" title="Français">
+                        <span class="fi fi-fr"></span>
+                    </button>
+                    <button class="lang-btn" onclick="changeLanguage('de')" title="Deutsch">
+                        <span class="fi fi-de"></span>
+                    </button>
+                    <button class="lang-btn" onclick="changeLanguage('it')" title="Italiano">
+                        <span class="fi fi-it"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Setup Screen -->
+        <div id="playerSetup" class="screen">
+            <h2>Configuração dos Jogadores</h2>
+            <div class="game-info">
+                <span class="game-icon" id="selectedGameIcon">🎯</span>
+                <span class="game-name" id="selectedGameName">Arco e Flecha</span>
+            </div>
+            
+            <div class="player-input-section">
+                <div class="input-group">
+                    <input type="text" id="playerName" placeholder="Nome do jogador" maxlength="20">
+                    <button class="add-btn" onclick="addPlayer()">Adicionar Jogador</button>
+                </div>
+                
+                <div class="players-list" id="playersList">
+                    <!-- Players will be added here -->
+                </div>
+            </div>
+            
+            <div class="game-settings">
+                <label for="roundsInput">Número de Rondas</label>
+                <input type="number" id="roundsInput" value="6" min="1" max="20">
+            </div>
+            
+            <button id="startGameBtn" class="start-btn" onclick="startGame()" disabled>Iniciar Jogo</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="game-header">
+                <div class="current-player" id="currentPlayer">Jogador 1</div>
+                <div class="player-stats-mini">
+                    <span id="currentScore">0 pts</span>
+                    <span id="currentAccuracy">0%</span>
+                </div>
+                <div class="game-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="currentRoundText">Ronda 1</span>
+                        <span id="totalRoundsText">de 6</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="score-options" id="scoreOptions">
+                <!-- Score buttons will be generated here -->
+            </div>
+            
+            <div class="scoreboard">
+                <h3 id="scoreboardTitle">PLACAR EM TEMPO REAL</h3>
+                <div class="scoreboard-content" id="scoreboardContent">
+                    <!-- Scoreboard will be generated here -->
+                </div>
+            </div>
+            
+            <button class="end-btn" onclick="endGame()">Terminar Jogo</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen">
+            <h2 id="finalResultsTitle">Resultados Finais</h2>
+            
+            <div class="final-results" id="finalResults">
+                <!-- Final results will be generated here -->
+            </div>
+            
+            <div class="achievement-section">
+                <h3 id="achievementsTitle">Conquistas e Estatísticas</h3>
+                <div class="achievements-grid" id="achievementsGrid">
+                    <!-- Achievements will be generated here -->
+                </div>
+            </div>
+            
+            <div class="individual-stats-section" id="individualStatsSection">
+                <h3 id="individualStatsTitle">Estatísticas Individuais Detalhadas</h3>
+                <div class="individual-stats-content" id="individualStatsContent">
+                    <!-- Individual stats will be generated here -->
+                </div>
+            </div>
+            
+            <button class="new-game-btn" onclick="newGame()">Novo Jogo</button>
+        </div>
+        
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html> 

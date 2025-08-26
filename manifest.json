@@ -1,0 +1,28 @@
+{
+    "name": "Parque Aventura - Scoreboard",
+    "short_name": "Parque Aventura",
+    "description": "Sistema de pontuação para Arco e Flecha e Paintball",
+    "start_url": ".",
+    "scope": ".",
+    "display": "standalone",
+    "background_color": "#228B22",
+    "theme_color": "#32CD32",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["sports", "games", "utilities"],
+    "lang": "pt",
+    "dir": "ltr"
+} 
