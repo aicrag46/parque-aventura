@@ -796,13 +796,13 @@ function showFinalResults() {
     const totalAccuracy = Math.round((sortedPlayers.reduce((sum, p) => sum + p.hits, 0) / (gameState.players.length * gameState.totalRounds)) * 100);
     const bestPlayer = sortedPlayers[0];
     const maxScore = Math.max(...gameState.players.map(p => p.totalScore));
-    const performance = Math.round((totalAccuracy + (maxScore / 100)) / 2);
+    const averageScore = Math.round(gameState.players.reduce((sum, p) => sum + p.totalScore, 0) / gameState.players.length);
     
     const achievements = [
         { icon: '🏹', title: t.totalAccuracy, value: `${totalAccuracy}${t.percentage}` },
         { icon: '⚡', title: t.bestPlayer, value: bestPlayer.name },
         { icon: '🔥', title: t.maxScore, value: `${maxScore} ${t.points}` },
-        { icon: '🌟', title: t.performance, value: `${performance}${t.percentage}` }
+        { icon: '📊', title: 'MÉDIA DE PONTOS', value: `${averageScore} ${t.points}` }
     ];
     
     achievements.forEach(achievement => {
@@ -844,16 +844,6 @@ function updateAchievements(sortedPlayers) {
     
     // Atualizar pontuação máxima
     document.getElementById('maxScore').textContent = `${bestPlayer.totalScore} pts`;
-    
-    // Calcular performance geral
-    let performance = 'Boa';
-    if (averageAccuracy >= 90) performance = 'Excelente';
-    else if (averageAccuracy >= 80) performance = 'Muito Boa';
-    else if (averageAccuracy >= 70) performance = 'Boa';
-    else if (averageAccuracy >= 60) performance = 'Regular';
-    else performance = 'A Melhorar';
-    
-    document.getElementById('performance').textContent = performance;
     
     // Adicionar animações aos cards
     animateAchievementCards();
