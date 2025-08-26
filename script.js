@@ -996,7 +996,7 @@ function updateScoreboard() {
         // Adicionar indicador de ronda atual se for o jogador ativo
         if (isCurrentPlayer) {
             const roundIndicator = document.createElement('div');
-            roundIndicator.style.cssText = 'margin-top: 10px; font-size: 0.9rem; color: #228B22; font-weight: bold;';
+            roundIndicator.style.cssText = 'margin-top: 12px; font-size: 1rem; color: #FFD700; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 12px; border: 2px solid rgba(255,215,0,0.4);';
             roundIndicator.textContent = `${t.currentRound} ${gameState.currentRound} ${t.of} ${gameState.totalRounds}`;
             playerDiv.appendChild(roundIndicator);
         }
@@ -1048,7 +1048,8 @@ function updateIndividualStats() {
                 <div class="rounds-grid">
                     ${player.scores.map((score, roundIndex) => `
                         <div class="round-score ${roundIndex === player.scores.length - 1 ? 'current' : ''}">
-                            ${t.round}${roundIndex + 1}: ${score}
+                            <div class="round-number">${roundIndex + 1}</div>
+                            <div class="round-points">${score}</div>
                         </div>
                     `).join('')}
                 </div>

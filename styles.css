@@ -717,16 +717,19 @@ body {
 }
 
 .progress-text span {
-    background: rgba(0, 0, 0, 0.4);
-    padding: 8px 12px;
-    border-radius: 12px;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    min-width: 70px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 16px;
+    border-radius: 16px;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    min-width: 90px;
     text-align: center;
-    font-size: 0.9rem;
-    font-weight: 700;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-size: 1rem;
+    font-weight: 800;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.5px;
 }
 
 /* Score Options - Mobile */
@@ -1448,26 +1451,29 @@ body {
 
 .rounds-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(36px, 1fr));
-    gap: 6px;
-    max-width: 380px;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 8px;
+    max-width: 400px;
     margin: 0 auto;
 }
 
 .round-score {
     background: #f8f9fa;
     border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 6px 4px;
+    border-radius: 12px;
+    padding: 8px 6px;
     text-align: center;
-    font-weight: 700;
-    font-size: 0.82rem;
+    font-weight: 600;
+    font-size: 0.75rem;
     color: #444;
     transition: all 0.2s ease;
-    min-height: 32px;
+    height: 50px;
+    min-width: 50px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     position: relative;
     overflow: hidden;
 }
@@ -1485,6 +1491,20 @@ body {
 .round-score:hover {
     transform: scale(1.05);
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.round-number {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #666;
+    line-height: 1;
+}
+
+.round-points {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
 }
 
 /* New Game Button - Mobile */
