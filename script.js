@@ -419,7 +419,7 @@ const gameConfigs = {
 
 // Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Aplicação iniciada');
+
     
     // Mostrar tela de seleção de jogo no início
     showScreen('gameSelection');
@@ -447,12 +447,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
     
-    console.log('Interface inicializada');
+
 });
 
 // Função para selecionar jogo
 function selectGame(gameType) {
-    console.log('Jogo selecionado:', gameType);
+
     
     gameState.selectedGame = gameType;
     gameState.totalRounds = gameConfigs[gameType].defaultRounds;
@@ -477,7 +477,7 @@ function selectGame(gameType) {
     // Mostrar tela de configuração de jogadores
     showScreen('playerSetup');
     
-    console.log('Configuração do jogo atualizada');
+
 }
 
 // Função para adicionar jogador
@@ -520,23 +520,29 @@ function removePlayer(index) {
 // Função para atualizar lista de jogadores
 function updatePlayersList() {
     const playersList = document.getElementById('playersList');
-    playersList.innerHTML = '';
     
-    gameState.players.forEach((player, index) => {
-        const playerItem = document.createElement('div');
-        playerItem.className = 'player-item';
-        playerItem.innerHTML = `
-            <span class="player-name">${player.name}</span>
-            <button class="remove-player" onclick="removePlayer(${index})">×</button>
-        `;
-        playersList.appendChild(playerItem);
-    });
+    if (playersList) {
+        playersList.innerHTML = '';
+        
+        gameState.players.forEach((player, index) => {
+            const playerItem = document.createElement('div');
+            playerItem.className = 'player-item';
+            playerItem.innerHTML = `
+                <span class="player-name">${player.name}</span>
+                <button class="remove-player" onclick="removePlayer(${index})">×</button>
+            `;
+            playersList.appendChild(playerItem);
+        });
+    }
 }
 
 // Função para atualizar botão de início
 function updateStartButton() {
     const startBtn = document.getElementById('startGameBtn');
-    startBtn.disabled = gameState.players.length === 0;
+    
+    if (startBtn) {
+        startBtn.disabled = gameState.players.length === 0;
+    }
 }
 
 // Função para atualizar input de rondas
@@ -683,7 +689,7 @@ function recordScore(score) {
     currentPlayer.totalScore += score;
     
     // Debug: Verificar pontuação adicionada
-    console.log(`Debug - Pontuação registada: ${currentPlayer.name} marcou ${score} pontos. Total atual: ${currentPlayer.totalScore}`);
+
     
     // Contar acertos (pontuação > 0)
     if (score > 0) {
@@ -765,18 +771,9 @@ function showFinalResults() {
     const bestPlayer = sortedPlayers[0];
     const maxScore = Math.max(...gameState.players.map(p => p.totalScore));
     
-    // Debug: Verificar cálculo da média de pontos
+    // Calcular média de pontos
     const totalPoints = gameState.players.reduce((sum, p) => sum + p.totalScore, 0);
     const averageScore = Math.round(totalPoints / gameState.players.length);
-    
-    console.log('Debug - Média de Pontos:');
-    console.log('Jogo selecionado:', gameState.selectedGame);
-    console.log('Configuração do jogo:', gameConfigs[gameState.selectedGame]);
-    console.log('Jogadores:', gameState.players.map(p => ({ name: p.name, totalScore: p.totalScore, scores: p.scores })));
-    console.log('Total de pontos:', totalPoints);
-    console.log('Número de jogadores:', gameState.players.length);
-    console.log('Média calculada:', averageScore);
-    console.log('Média exata (sem arredondamento):', totalPoints / gameState.players.length);
     
     const achievements = [
         { icon: '🏹', title: t.totalAccuracy, value: `${totalAccuracy}${t.percentage}` },
@@ -1013,8 +1010,9 @@ function updateIndividualStats() {
                     ${player.scores.map((score, roundIndex) => {
                         const maxScore = Math.max(...player.scores);
                         const isBestScore = score === maxScore && maxScore > 0;
+                        const isGoldenRound = score === maxScore && maxScore > 0;
                         return `
-                            <div class="round-score ${isBestScore ? 'best-score' : ''}">
+                            <div class="round-score ${isGoldenRound ? 'golden-round' : ''}">
                                 <div class="round-number">${roundIndex + 1}</div>
                                 <div class="round-points">${score}</div>
                             </div>
