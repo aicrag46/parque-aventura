@@ -10,6 +10,20 @@ let gameState = {
     language: 'pt' // Idioma padrão
 };
 
+// Função para mostrar ecrã
+function showScreen(screenId) {
+    // Esconder todos os ecrãs
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    
+    // Mostrar ecrã selecionado
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+    }
+}
+
 // Sistema de idiomas
 const translations = {
     pt: {
@@ -401,6 +415,8 @@ const gameConfigs = {
     }
 };
 
+
+
 // Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Aplicação iniciada');
@@ -428,6 +444,8 @@ document.addEventListener('DOMContentLoaded', function() {
             updateRoundsInput();
         });
     }
+    
+
     
     console.log('Interface inicializada');
 });
@@ -654,68 +672,11 @@ function updateScoreOptions() {
     }
 }
 
-// Função para criar efeito de partículas
-function createParticleEffect(x, y, color) {
-    const particleCount = 12;
-    
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        
-        // Gerar direção aleatória para cada partícula
-        const angle = (i / particleCount) * 2 * Math.PI;
-        const distance = 80 + Math.random() * 40;
-        const randomX = Math.cos(angle) * distance;
-        const randomY = Math.sin(angle) * distance;
-        
-        particle.className = 'particle';
-        particle.style.cssText = `
-            position: fixed;
-            left: ${x}px;
-            top: ${y}px;
-            width: ${6 + Math.random() * 4}px;
-            height: ${6 + Math.random() * 4}px;
-            background: ${color};
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
-            --random-x: ${randomX / 100};
-            --random-y: ${randomY / 100};
-            animation: particle-explosion 1s ease-out forwards;
-            box-shadow: 0 0 10px ${color};
-        `;
-        
-        document.body.appendChild(particle);
-        
-        // Remover partícula após animação
-        setTimeout(() => {
-            if (particle.parentNode) {
-                particle.parentNode.removeChild(particle);
-            }
-        }, 1000);
-    }
-}
 
-// Função para registar pontuação com efeito visual
+
+// Função para registar pontuação
 function recordScore(score) {
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    
-    // Criar efeito de partículas no botão clicado
-    const event = window.event;
-    if (event) {
-        const rect = event.target.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-        
-        // Cor baseada na pontuação
-        let particleColor = '#FFD700';
-        if (score >= 8) particleColor = '#FF1744';
-        else if (score >= 6) particleColor = '#2196F3';
-        else if (score >= 4) particleColor = '#424242';
-        else if (score >= 2) particleColor = '#FFFFFF';
-        else particleColor = '#FF9800';
-        
-        createParticleEffect(x, y, particleColor);
-    }
     
     // Adicionar pontuação
     currentPlayer.scores.push(score);
@@ -942,25 +903,15 @@ function newGame() {
     showScreen('gameSelection');
 }
 
-// Função para mostrar uma tela específica
-function showScreen(screenId) {
-    // Esconder todas as telas
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.style.display = 'none';
-    });
-    
-    // Esconder também a tela de seleção de jogo se não for ela
-    const gameSelection = document.querySelector('.game-selection');
-    if (gameSelection) {
-        gameSelection.style.display = screenId === 'gameSelection' ? 'block' : 'none';
-    }
-    
-    // Mostrar a tela solicitada
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.style.display = 'block';
-    }
-}
+
+
+
+
+
+
+
+
+
 
 // Função para atualizar placar
 function updateScoreboard() {
@@ -984,6 +935,9 @@ function updateScoreboard() {
         const playerRounds = document.createElement('div');
         playerRounds.className = 'player-rounds';
         
+        // Encontrar a pontuação mais alta do jogador
+        const maxScore = player.scores.length > 0 ? Math.max(...player.scores) : 0;
+        
         // Mostrar pontuações das rondas
         for (let i = 0; i < gameState.totalRounds; i++) {
             const roundScore = document.createElement('span');
@@ -991,9 +945,10 @@ function updateScoreboard() {
             
             if (i < player.scores.length) {
                 roundScore.innerHTML = `<div class="round-number">${i + 1}</div><div class="round-points">${player.scores[i]}</div>`;
-                // Marcar a pontuação mais recente do jogador atual
-                if (i === player.scores.length - 1 && isCurrentPlayer) {
-                    roundScore.classList.add('current');
+                
+                // Marcar as rondas com a pontuação mais alta
+                if (player.scores[i] === maxScore && maxScore > 0) {
+                    roundScore.classList.add('best-score');
                 }
             } else {
                 roundScore.innerHTML = `<div class="round-number">${i + 1}</div><div class="round-points">-</div>`;
@@ -1005,7 +960,7 @@ function updateScoreboard() {
         // Adicionar indicador de ronda atual se for o jogador ativo
         if (isCurrentPlayer) {
             const roundIndicator = document.createElement('div');
-            roundIndicator.style.cssText = 'margin-top: 12px; font-size: 1rem; color: #FFD700; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.6); padding: 8px 12px; border-radius: 12px; border: 2px solid rgba(255,215,0,0.4);';
+            roundIndicator.style.cssText = 'margin-top: 15px; font-size: 1.1rem; color: #2E7D32; font-weight: 800; background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%); padding: 12px 16px; border-radius: 15px; border: 2px solid #4CAF50; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3); text-align: center;';
             roundIndicator.textContent = `${t.currentRound} ${gameState.currentRound} ${t.of} ${gameState.totalRounds}`;
             playerDiv.appendChild(roundIndicator);
         }
@@ -1052,15 +1007,19 @@ function updateIndividualStats() {
                     <span class="stat-value">${accuracy}${t.percentage}</span>
                 </div>
             </div>
-            <div class="rounds-breakdown">
+                            <div class="rounds-breakdown">
                 <h5>${t.rounds}:</h5>
                 <div class="rounds-grid">
-                    ${player.scores.map((score, roundIndex) => `
-                        <div class="round-score ${roundIndex === player.scores.length - 1 ? 'current' : ''}">
-                            <div class="round-number">${roundIndex + 1}</div>
-                            <div class="round-points">${score}</div>
-                        </div>
-                    `).join('')}
+                    ${player.scores.map((score, roundIndex) => {
+                        const maxScore = Math.max(...player.scores);
+                        const isBestScore = score === maxScore && maxScore > 0;
+                        return `
+                            <div class="round-score ${isBestScore ? 'best-score' : ''}">
+                                <div class="round-number">${roundIndex + 1}</div>
+                                <div class="round-points">${score}</div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             </div>
         `;
