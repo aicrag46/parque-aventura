@@ -5,21 +5,25 @@ Uma aplicação web moderna e responsiva para gestão de pontuações em ativida
 ## ✨ **Funcionalidades Principais**
 
 ### 🎯 **Jogos Suportados**
+
 - **Arco e Flecha** - Sistema de pontuação de 0-10 pontos + "Fora"
 - **Paintball** - Sistema de pontuação de 0, 6, 8, 10, 20, 30 pontos
 
 ### 👥 **Gestão de Jogadores**
+
 - Adicionar/remover jogadores dinamicamente
 - Configuração personalizada do número de rondas (1-100)
 - Ronda padrão: 20 para Arco e Flecha
 
 ### 📊 **Sistema de Pontuação**
+
 - Interface intuitiva com botões coloridos por pontuação
 - Scoreboard em tempo real durante o jogo
 - Indicador visual do jogador atual
 - Progresso do jogo com barra visual
 
 ### 🏆 **Resultados e Estatísticas**
+
 - **Classificação final** com medalhas (ouro, prata, bronze)
 - **Estatísticas individuais** por jogador
 - **Média de pontos** e precisão
@@ -27,6 +31,7 @@ Uma aplicação web moderna e responsiva para gestão de pontuações em ativida
 - **Achievements** baseados no desempenho
 
 ### 🌍 **Internacionalização**
+
 - **Português** (padrão)
 - **Inglês**
 - Interface adaptada para ambos os idiomas
@@ -34,18 +39,21 @@ Uma aplicação web moderna e responsiva para gestão de pontuações em ativida
 ## 🎨 **Design e UX**
 
 ### **Princípios de Design**
+
 - **Mobile-first** - Otimizado para telemóveis
 - **Responsivo** - Adapta-se a todos os tamanhos de ecrã
 - **Acessível** - Suporte para navegação por teclado
 - **Profissional** - Visual moderno e atrativo
 
 ### **Paleta de Cores**
+
 - **Verde** - Tema principal do Parque Aventura
 - **Azul** - Jogador atual e elementos interativos
 - **Dourado** - Destaque para vencedores e melhores pontuações
 - **Branco/Cinza** - Fundos e textos para legibilidade
 
 ### **Componentes Visuais**
+
 - **Cartões elegantes** com sombras e bordas arredondadas
 - **Botões interativos** com efeitos hover e active
 - **Gradientes suaves** para profundidade visual
@@ -54,17 +62,20 @@ Uma aplicação web moderna e responsiva para gestão de pontuações em ativida
 ## 📱 **Responsividade**
 
 ### **Mobile (≤768px)**
+
 - Layout em coluna única
 - Botões de pontuação otimizados para toque
 - Scoreboard sem scroll interno
 - Navegação simplificada
 
 ### **Tablet (768px-1024px)**
+
 - Layout híbrido com elementos lado a lado
 - Grid de pontuação expandido
 - Melhor aproveitamento do espaço
 
 ### **Desktop (>1024px)**
+
 - Layout completo com máximo aproveitamento
 - Grid de pontuação 5x5 para Arco e Flecha
 - Estatísticas em colunas múltiplas
@@ -91,20 +102,24 @@ papbv/
 ## 🎮 **Como Jogar**
 
 ### 1. **Seleção do Jogo**
+
 - Escolher entre "Arco e Flecha" ou "Paintball"
 - Configurar número de rondas desejado
 
 ### 2. **Configuração de Jogadores**
+
 - Adicionar nomes dos jogadores
 - Confirmar configurações
 
 ### 3. **Durante o Jogo**
+
 - Jogador atual é destacado em verde
 - Clicar na pontuação obtida em cada ronda
 - Scoreboard atualiza em tempo real
 - Progresso visual mostra avanço do jogo
 
 ### 4. **Resultados Finais**
+
 - Classificação automática por pontuação total
 - Estatísticas detalhadas por jogador
 - Destaque dourado para vencedores
@@ -113,16 +128,19 @@ papbv/
 ## 🔧 **Funcionalidades Técnicas**
 
 ### **Gestão de Estado**
+
 - Estado do jogo persistente durante a sessão
 - Validação de dados em tempo real
 - Gestão de erros e estados inválidos
 
 ### **Performance**
+
 - Animações otimizadas com CSS transforms
 - Lazy loading de elementos pesados
 - Debouncing para eventos frequentes
 
 ### **Acessibilidade**
+
 - Suporte para navegação por teclado
 - Indicadores visuais claros
 - Textos alternativos para elementos visuais
@@ -131,6 +149,7 @@ papbv/
 ## 🌟 **Melhorias Implementadas**
 
 ### **Versão Atual (v2.0)**
+
 - ✅ **Interface redesenhada** - Visual moderno e profissional
 - ✅ **Scoreboard otimizado** - Sem scroll interno, melhor legibilidade
 - ✅ **Sistema de dourado** - Só no fim, não durante a atividade
@@ -141,6 +160,7 @@ papbv/
 - ✅ **Secção de resultados** - Completamente redesenhada
 
 ### **Funcionalidades Especiais**
+
 - **Rondas douradas** - Destacam automaticamente as melhores pontuações
 - **Indicadores visuais** - Jogador atual claramente identificado
 - **Estatísticas avançadas** - Precisão, acertos e médias
@@ -149,12 +169,14 @@ papbv/
 ## 📱 **Compatibilidade**
 
 ### **Navegadores Suportados**
+
 - ✅ **Chrome** 90+
 - ✅ **Firefox** 88+
 - ✅ **Safari** 14+
 - ✅ **Edge** 90+
 
 ### **Dispositivos Testados**
+
 - ✅ **iPhone** (iOS 14+)
 - ✅ **Android** (Android 10+)
 - ✅ **Tablets** (iPad, Android)
@@ -163,9 +185,11 @@ papbv/
 ## 🚀 **Deploy**
 
 ### **GitHub Pages**
+
 A aplicação está disponível em: [https://aicrag46.github.io/papbv/](https://aicrag46.github.io/papbv/)
 
 ### **Deploy Local**
+
 1. Clonar o repositório
 2. Abrir `index.html` no navegador
 3. Ou usar servidor local: `python -m http.server 8000`
@@ -193,6 +217,7 @@ Este projeto está sob a licença MIT. Ver `LICENSE` para mais detalhes.
 ## 🎯 **Roadmap Futuro**
 
 ### **Funcionalidades Planeadas**
+
 - [ ] **Histórico de jogos** - Guardar resultados anteriores
 - [ ] **Modo escuro** - Alternativa ao tema atual
 - [ ] **Sons e efeitos** - Feedback auditivo
@@ -201,12 +226,9 @@ Este projeto está sob a licença MIT. Ver `LICENSE` para mais detalhes.
 - [ ] **Backup local** - Guardar dados no dispositivo
 
 ### **Melhorias Técnicas**
+
 - [ ] **PWA** - Progressive Web App
 - [ ] **Service Worker** - Cache e atualizações
 - [ ] **IndexedDB** - Armazenamento local avançado
 - [ ] **WebSockets** - Jogos em tempo real
 - [ ] **API REST** - Backend para persistência
-
----
-
-**⭐ Se este projeto te ajudou, considera dar uma estrela no GitHub!** 
