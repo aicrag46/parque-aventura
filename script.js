@@ -729,19 +729,17 @@ function renderShareCard(img) {
   bs.addColorStop(0, "rgba(3,12,7,0)"); bs.addColorStop(0.42, "rgba(3,12,7,0.85)"); bs.addColorStop(1, "rgba(3,12,7,0.97)");
   ctx.fillStyle = bs; ctx.fillRect(0, H * 0.30, W, H * 0.70);
 
-  // Header — logo + title
-  ctx.save();
-  rrect(ctx, 56, 56, 96, 96, 22); ctx.fillStyle = "rgba(53,194,107,0.25)"; ctx.fill();
-  ctx.clip();
-  try { if (logoImg.complete && logoImg.naturalWidth) ctx.drawImage(logoImg, 66, 66, 76, 76); } catch (_) {}
-  ctx.restore();
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = "#fff"; ctx.font = `800 46px ${F}`; ctx.textAlign = "left";
-  ctx.fillText("PARQUE AVENTURA", 176, 100);
-  ctx.fillStyle = "#5fe08c"; ctx.font = `600 30px ${F}`;
-  const gameName = t(s.game);
+  // Header — real brand logo lockup (carries the name) + game/date
   const dateStr = s.date.toLocaleDateString(gameState.language, { day: "2-digit", month: "long", year: "numeric" });
-  ctx.fillText(`${gameName}  •  ${dateStr}`, 176, 142);
+  ctx.save();
+  rrect(ctx, 56, 46, 150, 150, 26); ctx.clip();
+  try { if (logoImg.complete && logoImg.naturalWidth) ctx.drawImage(logoImg, 56, 46, 150, 150); } catch (_) {}
+  ctx.restore();
+  ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+  ctx.fillStyle = "#fff"; ctx.font = `800 40px ${F}`;
+  ctx.fillText(t("results"), 230, 112);
+  ctx.fillStyle = "#5fe08c"; ctx.font = `600 30px ${F}`;
+  ctx.fillText(`${t(s.game)}  •  ${dateStr}`, 230, 158);
 
   // Champion spotlight
   const champ = s.ranked[0];

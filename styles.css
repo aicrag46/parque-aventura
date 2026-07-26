@@ -117,29 +117,17 @@ body {
 }
 
 .masthead {
-  display: flex; align-items: center; gap: 14px;
-  justify-content: center; text-align: left;
-  margin-bottom: 26px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-align: center; margin-bottom: 26px;
 }
-.masthead__logo {
-  width: 54px; height: 54px; flex: none;
-  display: grid; place-items: center;
-  border-radius: 16px;
-  background: linear-gradient(145deg, rgba(53,194,107,0.25), rgba(20,60,40,0.5));
-  border: 1px solid var(--glass-brd);
-  box-shadow: var(--shadow-md), inset 0 1px 0 var(--glass-hi);
-}
-.masthead__logo-img { width: 70%; height: 70%; object-fit: contain; }
-.masthead__title {
-  font-family: var(--font-display);
-  font-weight: 800; font-size: clamp(1.5rem, 5vw, 2.1rem);
-  letter-spacing: -0.02em; line-height: 1;
-  background: linear-gradient(180deg, #fff, var(--leaf-300));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+.masthead__brand {
+  width: min(230px, 62%); height: auto; display: block;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(120,210,160,0.14);
 }
 .masthead__subtitle {
-  font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--leaf-300); opacity: 0.8; margin-top: 4px;
+  font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--leaf-300); opacity: 0.85;
 }
 
 /* ============================================================
