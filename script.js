@@ -19,6 +19,8 @@ const gameState = {
   ambienceOn: true,
 };
 
+let resultsSummary = null;
+
 const AVATAR_COLORS = [
   ["#5fe08c", "#1f5c3d"], ["#ffd97a", "#f5a623"], ["#7fd0c4", "#2f8f86"],
   ["#ff8a3d", "#c14a1e"], ["#c9a0ff", "#6b3fa0"], ["#ff9db1", "#c14a63"],
@@ -39,6 +41,15 @@ const translations = {
   de: { title: "Parque Aventura", subtitle: "Punktesystem", archery: "Bogenschießen", paintball: "Paintball", addPlayer: "Spieler Hinzufügen", playerName: "Spielername", roundsLabel: "Anzahl der Runden", startGame: "Spiel Starten", currentRound: "Runde", of: "von", points: "Pkt", accuracy: "Genauigkeit", hits: "Treffer", realTimeScoreboard: "Echtzeit-Punktestand", endGame: "Spiel Beenden", finalResults: "Endergebnisse", newGame: "Neues Spiel", achievements: "Erfolge & Statistiken", totalAccuracy: "Gesamtgenauigkeit", bestPlayer: "Bester Spieler", maxScore: "Höchstwert", average: "Durchschnitt", individualStats: "Einzelstatistiken", totalScore: "Gesamtpunktzahl", averageScore: "Durchschnitt", bestRound: "Beste", miss: "Daneben", chooseActivity: "Aktivität Wählen", playerSetup: "Spieler Einrichtung", current: "Aktuell", add: "Hinzufügen", back: "Zurück", start: "Starten", percentage: "%", playersHint: "Füge mindestens einen Spieler hinzu, um zu beginnen." },
   it: { title: "Parque Aventura", subtitle: "Sistema di Punteggio", archery: "Tiro con l'Arco", paintball: "Paintball", addPlayer: "Aggiungi Giocatore", playerName: "Nome del giocatore", roundsLabel: "Numero di Round", startGame: "Inizia Gioco", currentRound: "Round", of: "di", points: "pt", accuracy: "precisione", hits: "centri", realTimeScoreboard: "Punteggi in tempo reale", endGame: "Termina Gioco", finalResults: "Risultati Finali", newGame: "Nuovo Gioco", achievements: "Conquiste & Statistiche", totalAccuracy: "Precisione Totale", bestPlayer: "Miglior Giocatore", maxScore: "Punteggio Max", average: "Media", individualStats: "Statistiche Individuali", totalScore: "Punteggio Totale", averageScore: "Media", bestRound: "Migliore", miss: "Mancato", chooseActivity: "Scegli Attività", playerSetup: "Configurazione Giocatori", current: "Attuale", add: "Aggiungi", back: "Indietro", start: "Inizia", percentage: "%", playersHint: "Aggiungi almeno un giocatore per iniziare." },
 };
+
+const EXTRA_I18N = {
+  pt: { sharePhoto: "Criar imagem", takePhoto: "Tirar / escolher foto", noPhoto: "Sem foto", savePhoto: "Guardar", share: "Partilhar", champion: "Campeão", results: "Resultados" },
+  en: { sharePhoto: "Create image", takePhoto: "Take / choose photo", noPhoto: "No photo", savePhoto: "Save", share: "Share", champion: "Champion", results: "Results" },
+  fr: { sharePhoto: "Créer une image", takePhoto: "Prendre / choisir une photo", noPhoto: "Sans photo", savePhoto: "Enregistrer", share: "Partager", champion: "Champion", results: "Résultats" },
+  de: { sharePhoto: "Bild erstellen", takePhoto: "Foto aufnehmen / wählen", noPhoto: "Ohne Foto", savePhoto: "Speichern", share: "Teilen", champion: "Champion", results: "Ergebnisse" },
+  it: { sharePhoto: "Crea immagine", takePhoto: "Scatta / scegli foto", noPhoto: "Senza foto", savePhoto: "Salva", share: "Condividi", champion: "Campione", results: "Risultati" },
+};
+Object.keys(EXTRA_I18N).forEach((l) => Object.assign(translations[l], EXTRA_I18N[l]));
 
 function t(key) { return (translations[gameState.language] || translations.pt)[key] || key; }
 
@@ -159,8 +170,11 @@ function startGame() {
   gameState.gameStarted = true;
   gameState.gameEnded = false;
 
-  document.getElementById("targetStage").hidden = gameState.selectedGame !== "archery";
+  const isArchery = gameState.selectedGame === "archery";
+  document.getElementById("targetStage").hidden = !isArchery;
+  document.getElementById("boardStage").hidden = isArchery;
   document.getElementById("shotMarks").innerHTML = "";
+  document.getElementById("splatMarks").innerHTML = "";
 
   buildScoreOptions();
   updateHUD();
@@ -228,6 +242,7 @@ function selectScore(value, evt) {
   // feedback
   scorePop(value, evt);
   if (gameState.selectedGame === "archery") addShotMark(value);
+  else addSplatMark(value);
   soundForScore(value);
   haptic(value === 0 ? 30 : 12);
 
@@ -313,11 +328,53 @@ function addShotMark(value) {
   while (g.childElementCount > 24) g.removeChild(g.firstChild);
 }
 
+const PAINT_HOLES = {
+  30: { x: 120, y: 72, r: 30 }, 20: { x: 56, y: 56, r: 16 }, 10: { x: 184, y: 56, r: 16 },
+  8: { x: 64, y: 128, r: 12 }, 6: { x: 176, y: 128, r: 12 },
+};
+function addSplatMark(value) {
+  const g = document.getElementById("splatMarks");
+  const [c1] = AVATAR_COLORS[gameState.currentPlayerIndex % AVATAR_COLORS.length];
+  let cx, cy, spread;
+  const hole = PAINT_HOLES[value];
+  if (hole) {
+    const a = Math.random() * Math.PI * 2, rr = Math.random() * hole.r * 0.55;
+    cx = hole.x + Math.cos(a) * rr; cy = hole.y + Math.sin(a) * rr; spread = hole.r * 0.5;
+  } else { // miss — splat off the holes
+    cx = 30 + Math.random() * 180; cy = 168 + Math.random() * 22; spread = 6;
+  }
+  const grp = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  grp.setAttribute("class", "splat-mark");
+  const main = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  main.setAttribute("cx", cx.toFixed(1)); main.setAttribute("cy", cy.toFixed(1));
+  main.setAttribute("r", (spread * 0.7).toFixed(1)); main.setAttribute("fill", c1);
+  grp.appendChild(main);
+  for (let i = 0; i < 5; i++) {
+    const a = Math.random() * Math.PI * 2, d = spread * (0.7 + Math.random() * 0.9);
+    const drop = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    drop.setAttribute("cx", (cx + Math.cos(a) * d).toFixed(1));
+    drop.setAttribute("cy", (cy + Math.sin(a) * d).toFixed(1));
+    drop.setAttribute("r", (1 + Math.random() * 2.4).toFixed(1));
+    drop.setAttribute("fill", c1);
+    grp.appendChild(drop);
+  }
+  if (!hole) grp.style.opacity = "0.55";
+  g.appendChild(grp);
+  while (g.childElementCount > 18) g.removeChild(g.firstChild);
+}
+
 /* ---------- End game / results ---------- */
 function endGame() {
   gameState.gameEnded = true;
   gameState.gameStarted = false;
   const ranked = [...gameState.players].sort((a, b) => b.totalScore - a.totalScore);
+  const totalHits = gameState.players.reduce((s, p) => s + p.hits, 0);
+  const totalShots = gameState.players.reduce((s, p) => s + playedRounds(p), 0);
+  resultsSummary = {
+    ranked, game: gameState.selectedGame, rounds: gameState.totalRounds,
+    totalAcc: totalShots ? Math.round((totalHits / totalShots) * 100) : 0,
+    date: new Date(),
+  };
   renderPodium(ranked);
   renderFinalResults(ranked);
   renderAchievements(ranked);
@@ -617,6 +674,175 @@ function toggleAmbience() {
   haptic(6);
 }
 
+/* ============================================================
+   PHOTO COMPOSER — Strava-style shareable results image
+   ============================================================ */
+const logoImg = new Image();
+logoImg.src = "logo.png";
+let composerPhoto = null;
+
+function openComposer() {
+  if (!resultsSummary) return;
+  document.getElementById("composer").hidden = false;
+  composerPhoto = null;
+  renderShareCard(null);
+  haptic(10);
+}
+function closeComposer() { document.getElementById("composer").hidden = true; }
+
+function drawCover(ctx, img, W, H) {
+  const ir = img.width / img.height, cr = W / H;
+  let dw, dh;
+  if (ir > cr) { dh = H; dw = H * ir; } else { dw = W; dh = W / ir; }
+  ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+}
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+  else { ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+}
+
+function renderShareCard(img) {
+  const canvas = document.getElementById("shareCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  const F = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
+  const s = resultsSummary;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background: photo or branded gradient
+  if (img) {
+    drawCover(ctx, img, W, H);
+  } else {
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, "#0b2e2b"); g.addColorStop(0.5, "#0c261c"); g.addColorStop(1, "#06140d");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const rg = ctx.createRadialGradient(W * 0.78, H * 0.12, 0, W * 0.78, H * 0.12, W * 0.6);
+    rg.addColorStop(0, "rgba(255,200,120,0.4)"); rg.addColorStop(1, "rgba(255,200,120,0)");
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+  }
+  // Scrims
+  let ts = ctx.createLinearGradient(0, 0, 0, 340);
+  ts.addColorStop(0, "rgba(3,12,7,0.8)"); ts.addColorStop(1, "rgba(3,12,7,0)");
+  ctx.fillStyle = ts; ctx.fillRect(0, 0, W, 340);
+  let bs = ctx.createLinearGradient(0, H * 0.30, 0, H);
+  bs.addColorStop(0, "rgba(3,12,7,0)"); bs.addColorStop(0.42, "rgba(3,12,7,0.85)"); bs.addColorStop(1, "rgba(3,12,7,0.97)");
+  ctx.fillStyle = bs; ctx.fillRect(0, H * 0.30, W, H * 0.70);
+
+  // Header — logo + title
+  ctx.save();
+  rrect(ctx, 56, 56, 96, 96, 22); ctx.fillStyle = "rgba(53,194,107,0.25)"; ctx.fill();
+  ctx.clip();
+  try { if (logoImg.complete && logoImg.naturalWidth) ctx.drawImage(logoImg, 66, 66, 76, 76); } catch (_) {}
+  ctx.restore();
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#fff"; ctx.font = `800 46px ${F}`; ctx.textAlign = "left";
+  ctx.fillText("PARQUE AVENTURA", 176, 100);
+  ctx.fillStyle = "#5fe08c"; ctx.font = `600 30px ${F}`;
+  const gameName = t(s.game);
+  const dateStr = s.date.toLocaleDateString(gameState.language, { day: "2-digit", month: "long", year: "numeric" });
+  ctx.fillText(`${gameName}  •  ${dateStr}`, 176, 142);
+
+  // Champion spotlight
+  const champ = s.ranked[0];
+  const rest = s.ranked.slice(1);
+  const cy0 = 560;
+  ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+  ctx.font = "94px sans-serif";
+  ctx.fillText("🥇", W / 2, cy0);
+  ctx.fillStyle = "#ffd97a"; ctx.font = `700 32px ${F}`;
+  ctx.fillText(t("champion").toUpperCase(), W / 2, cy0 + 48);
+  ctx.fillStyle = "#fff"; ctx.font = `800 70px ${F}`;
+  ctx.fillText(clip(ctx, champ.name, W - 160), W / 2, cy0 + 128);
+  ctx.fillStyle = "#5fe08c"; ctx.font = `800 50px ${F}`;
+  ctx.fillText(`${champ.totalScore} ${t("points")}`, W / 2, cy0 + 190);
+
+  // Full ranking of everyone else
+  let listTop = cy0 + 240;
+  if (rest.length) {
+    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = `700 24px ${F}`;
+    ctx.fillText(t("results").toUpperCase(), W / 2, listTop);
+    listTop += 34;
+  }
+  const listBottom = H - 92;
+  const rowH = Math.min(78, (listBottom - listTop) / Math.max(1, rest.length));
+  const avatarR = Math.min(20, rowH * 0.27);
+  const nameF = Math.min(34, Math.max(19, rowH * 0.44));
+  const rankColors = { 2: "#d3dbe4", 3: "#e0a86a" };
+  rest.forEach((p, i) => {
+    const rank = i + 2;
+    const yc = listTop + i * rowH + rowH / 2;
+    const [c1, c2] = AVATAR_COLORS[gameState.players.indexOf(p) % AVATAR_COLORS.length];
+    rrect(ctx, 100, yc - rowH / 2 + 4, W - 200, rowH - 8, 16);
+    ctx.fillStyle = "rgba(255,255,255,0.07)"; ctx.fill();
+    // rank badge (drawn disc — always visible, no emoji dependency)
+    const rr = avatarR * 0.92;
+    ctx.beginPath(); ctx.arc(146, yc, rr, 0, Math.PI * 2);
+    ctx.fillStyle = rankColors[rank] || "rgba(255,255,255,0.14)"; ctx.fill();
+    ctx.fillStyle = rank <= 3 ? "#05100a" : "#e6eee6";
+    ctx.font = `800 ${Math.round(rr * 1.05)}px ${F}`; ctx.textAlign = "center";
+    ctx.fillText(String(rank), 146, yc + rr * 0.35);
+    // avatar
+    ctx.beginPath(); ctx.arc(200, yc, avatarR, 0, Math.PI * 2);
+    const ag = ctx.createLinearGradient(200 - avatarR, yc - avatarR, 200 + avatarR, yc + avatarR);
+    ag.addColorStop(0, c1); ag.addColorStop(1, c2); ctx.fillStyle = ag; ctx.fill();
+    ctx.fillStyle = "#05100a"; ctx.font = `700 ${Math.round(avatarR * 1.05)}px ${F}`;
+    ctx.fillText(initials(p.name), 200, yc + avatarR * 0.36);
+    // name + score
+    ctx.textAlign = "left"; ctx.fillStyle = "#fff"; ctx.font = `600 ${Math.round(nameF)}px ${F}`;
+    ctx.fillText(clip(ctx, p.name, W - 480), 200 + avatarR + 22, yc + nameF * 0.34);
+    ctx.textAlign = "right"; ctx.font = `800 ${Math.round(nameF * 1.05)}px ${F}`;
+    ctx.fillText(String(p.totalScore), W - 128, yc + nameF * 0.34);
+  });
+
+  // Footer stat
+  ctx.textAlign = "center"; ctx.fillStyle = "#5fe08c"; ctx.font = `600 25px ${F}`;
+  ctx.fillText(`${t("totalAccuracy")}: ${s.totalAcc}%  •  ${s.rounds} ${t("currentRound").toLowerCase()}s`, W / 2, H - 46);
+}
+
+function clip(ctx, text, maxW) {
+  if (ctx.measureText(text).width <= maxW) return text;
+  let str = text;
+  while (str.length > 1 && ctx.measureText(str + "…").width > maxW) str = str.slice(0, -1);
+  return str + "…";
+}
+
+function cardBlob() { return new Promise((res) => document.getElementById("shareCanvas").toBlob(res, "image/png", 0.95)); }
+
+async function downloadCard() {
+  const blob = await cardBlob(); if (!blob) return;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `parque-aventura-${Date.now()}.png`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  haptic(12);
+}
+async function shareCard() {
+  const blob = await cardBlob(); if (!blob) return;
+  const file = new File([blob], "parque-aventura.png", { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: "Parque Aventura", text: `${t("results")} — ${t(resultsSummary.game)}` }); }
+    catch (_) {}
+  } else { downloadCard(); }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const photoInput = document.getElementById("photoInput");
+  if (photoInput) photoInput.addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const img = new Image();
+    img.onload = () => { composerPhoto = img; renderShareCard(img); };
+    img.src = URL.createObjectURL(f);
+  });
+  const noPhoto = document.getElementById("noPhotoBtn");
+  if (noPhoto) noPhoto.addEventListener("click", () => { composerPhoto = null; renderShareCard(null); });
+  const dl = document.getElementById("downloadCardBtn");
+  if (dl) dl.addEventListener("click", downloadCard);
+  const sh = document.getElementById("shareCardBtn");
+  if (sh) sh.addEventListener("click", shareCard);
+});
+
 /* ---------- Boot ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   applyTranslations();
@@ -642,3 +868,5 @@ window.newGame = newGame;
 window.changeLanguage = changeLanguage;
 window.toggleSound = toggleSound;
 window.toggleAmbience = toggleAmbience;
+window.openComposer = openComposer;
+window.closeComposer = closeComposer;

@@ -181,6 +181,41 @@
           </svg>
         </div>
 
+        <!-- Paintball hero board (holes on posts) -->
+        <div class="board-stage" id="boardStage" hidden>
+          <svg viewBox="0 0 240 200" class="paint-board" aria-hidden="true">
+            <rect x="60" y="118" width="9" height="74" rx="3" class="pb-post" />
+            <rect x="171" y="118" width="9" height="74" rx="3" class="pb-post" />
+            <rect x="16" y="10" width="208" height="150" rx="18" class="pb-backing" />
+            <g class="pb-hole tier-max">
+              <circle cx="120" cy="72" r="37" class="pb-ring" />
+              <circle cx="120" cy="72" r="21" class="pb-bore" />
+              <text x="120" y="79" class="pb-val">30</text>
+            </g>
+            <g class="pb-hole tier-high">
+              <circle cx="56" cy="56" r="25" class="pb-ring" />
+              <circle cx="56" cy="56" r="13" class="pb-bore" />
+              <text x="56" y="61" class="pb-val pb-val--sm">20</text>
+            </g>
+            <g class="pb-hole tier-mid">
+              <circle cx="184" cy="56" r="25" class="pb-ring" />
+              <circle cx="184" cy="56" r="13" class="pb-bore" />
+              <text x="184" y="61" class="pb-val pb-val--sm">10</text>
+            </g>
+            <g class="pb-hole tier-low">
+              <circle cx="64" cy="128" r="19" class="pb-ring" />
+              <circle cx="64" cy="128" r="10" class="pb-bore" />
+              <text x="64" y="132" class="pb-val pb-val--xs">8</text>
+            </g>
+            <g class="pb-hole tier-low">
+              <circle cx="176" cy="128" r="19" class="pb-ring" />
+              <circle cx="176" cy="128" r="10" class="pb-bore" />
+              <text x="176" y="132" class="pb-val pb-val--xs">6</text>
+            </g>
+            <g id="splatMarks"></g>
+          </svg>
+        </div>
+
         <div class="score-options" id="scoreOptions"></div>
       </div>
 
@@ -213,10 +248,34 @@
       </div>
 
       <div class="results-actions">
+        <button class="btn btn--gold btn--block" onclick="openComposer()" type="button" data-i18n="sharePhoto">📸 Criar imagem</button>
         <button class="btn btn--primary btn--block" onclick="newGame()" type="button" data-i18n="newGame">Novo Jogo</button>
       </div>
     </section>
   </main>
+
+  <!-- ░░ Photo composer (Strava-style share) ░░ -->
+  <div class="composer" id="composer" hidden>
+    <div class="composer__backdrop" onclick="closeComposer()"></div>
+    <div class="composer__panel">
+      <div class="composer__head">
+        <span class="composer__title" data-i18n="sharePhoto">Criar imagem</span>
+        <button class="composer__close" onclick="closeComposer()" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="composer__stage">
+        <canvas id="shareCanvas" class="composer__canvas" width="1080" height="1350"></canvas>
+      </div>
+      <div class="composer__actions">
+        <label class="btn btn--add composer__file">
+          <span>📷 <span data-i18n="takePhoto">Tirar / escolher foto</span></span>
+          <input type="file" id="photoInput" accept="image/*" capture="environment" hidden />
+        </label>
+        <button class="btn btn--ghost" id="noPhotoBtn" type="button" data-i18n="noPhoto">Sem foto</button>
+        <button class="btn btn--gold" id="downloadCardBtn" type="button" data-i18n="savePhoto">Guardar</button>
+        <button class="btn btn--primary" id="shareCardBtn" type="button" data-i18n="share">Partilhar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

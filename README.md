@@ -7,10 +7,11 @@ Uma experiência web **imersiva** para gerir pontuações de **Arco e Flecha** e
 ## ✨ Destaques da experiência
 
 - **Cenário atmosférico vivo** — céu ao entardecer, sol pulsante, silhuetas de montanhas e árvores em profundidade, nevoeiro à deriva e **pirilampos** gerados em canvas.
-- **Alvo de tiro interativo** — cada disparo aterra visualmente no anel correspondente do alvo, com feedback animado.
+- **Visual próprio por jogo** — Arco e Flecha usa um **alvo de anéis** onde cada flecha aterra no anel certo; Paintball usa um **painel de furos em paus** (30/20/10/8/6) onde a tinta acerta no furo correspondente.
 - **Botões de pontuação por tiers** — cores graduadas do ouro (máximo) ao mate (mínimo), mais botão "Fora".
 - **Placar em tempo real** — barras de progresso, coroa 👑 para o líder e destaque do jogador atual.
-- **Resultados cinematográficos** — pódio 3D com medalhas, **confetti**, conquistas e estatísticas individuais detalhadas.
+- **Resultados cinematográficos** — pódio 3D com medalhas, **confetti**, classificação completa, conquistas e estatísticas individuais detalhadas.
+- **Cartão de foto partilhável (estilo Strava)** — tira/escolhe uma foto e as pontuações de **todos os jogadores** são sobrepostas num cartão de marca; guardar ou partilhar (Web Share API). Também funciona "sem foto".
 - **Som sintetizado** (Web Audio, sem ficheiros) — _thwack_ para arco, _splat_ para paintball, fanfarra no vencedor. Botão para silenciar.
 - **Feedback tátil** (vibração) em dispositivos móveis.
 - **5 idiomas** — 🇵🇹 Português · 🇬🇧 English · 🇫🇷 Français · 🇩🇪 Deutsch · 🇮🇹 Italiano.

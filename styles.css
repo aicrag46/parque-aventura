@@ -271,6 +271,10 @@ body {
 .btn--add:hover { filter: brightness(1.12); }
 .btn--danger { background: linear-gradient(135deg, var(--clay-400), #a83521); box-shadow: 0 10px 26px -12px rgba(224,83,58,0.7); }
 .btn--danger:hover { filter: brightness(1.08); }
+.btn--gold { background: linear-gradient(135deg, var(--gold-300), var(--gold-400)); color: var(--ink); box-shadow: 0 12px 28px -12px rgba(245,196,81,0.8); }
+.btn--gold:hover { filter: brightness(1.06); }
+.btn--ghost { background: rgba(255,255,255,0.06); border: 1px solid var(--glass-brd); color: var(--cream); }
+.btn--ghost:hover { background: rgba(255,255,255,0.12); }
 
 .ghost-back {
   display: inline-flex; align-items: center; gap: 6px;
@@ -373,6 +377,7 @@ input:focus { outline: none; border-color: var(--leaf-400); box-shadow: 0 0 0 3p
    PLAY AREA — target + score buttons
    ============================================================ */
 .play-area { margin-bottom: 18px; }
+.target-stage[hidden], .board-stage[hidden] { display: none; }
 .target-stage { display: grid; place-items: center; margin-bottom: 18px; }
 .big-target { width: min(240px, 62vw); height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5)); }
 .big-target .bt { fill: none; stroke-width: 10; }
@@ -384,6 +389,22 @@ input:focus { outline: none; border-color: var(--leaf-400); box-shadow: 0 0 0 3p
 .big-target .ring-10 { stroke: var(--gold-300); fill: var(--gold-300); }
 .shot-mark { fill: #fff; stroke: var(--ink); stroke-width: 1.5; animation: land 0.5s var(--ease) both; transform-box: fill-box; transform-origin: center; }
 @keyframes land { 0% { transform: scale(4); opacity: 0; } 60% { transform: scale(0.8); } 100% { transform: scale(1); opacity: 1; } }
+
+/* Paintball board (holes on posts) */
+.board-stage { display: grid; place-items: center; margin-bottom: 18px; }
+.paint-board { width: min(300px, 78vw); height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5)); }
+.pb-backing { fill: #16281d; stroke: rgba(120,210,160,0.22); stroke-width: 2; }
+.pb-post { fill: #3a2a1c; }
+.pb-hole .pb-ring { stroke-width: 5; }
+.pb-hole .pb-bore { fill: #05100a; }
+.pb-hole .pb-val { font-family: var(--font-display); font-weight: 800; font-size: 20px; fill: #fff; text-anchor: middle; }
+.pb-hole .pb-val--sm { font-size: 15px; }
+.pb-hole .pb-val--xs { font-size: 12px; }
+.pb-hole.tier-max .pb-ring { stroke: var(--gold-300); }
+.pb-hole.tier-high .pb-ring { stroke: var(--leaf-400); }
+.pb-hole.tier-mid .pb-ring { stroke: var(--sky-300); }
+.pb-hole.tier-low .pb-ring { stroke: #8a7a55; }
+.splat-mark { animation: land 0.45s var(--ease) both; transform-box: fill-box; transform-origin: center; }
 
 .score-options { width: 100%; }
 .score-grid { display: grid; gap: 10px; }
@@ -525,7 +546,30 @@ input:focus { outline: none; border-color: var(--leaf-400); box-shadow: 0 0 0 3p
 .stat-mini b { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
 .stat-mini small { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--cream-dim); opacity: 0.75; }
 
-.results-actions { margin-top: 24px; }
+.results-actions { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ============================================================
+   PHOTO COMPOSER (Strava-style share)
+   ============================================================ */
+.composer { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.composer[hidden] { display: none; }
+.composer__backdrop { position: absolute; inset: 0; background: rgba(3,10,7,0.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fade 0.3s var(--ease); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.composer__panel {
+  position: relative; z-index: 1; width: min(440px, 100%); max-height: 92dvh; display: flex; flex-direction: column; gap: 14px;
+  background: var(--glass-bg); border: 1px solid var(--glass-brd); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 16px; animation: screenIn 0.4s var(--ease) both;
+}
+.composer__head { display: flex; align-items: center; justify-content: space-between; }
+.composer__title { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+.composer__close { background: rgba(255,255,255,0.06); border: none; color: var(--cream); width: 34px; height: 34px; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+.composer__close:hover { background: rgba(255,255,255,0.14); }
+.composer__stage { flex: 1; min-height: 0; display: grid; place-items: center; overflow: hidden; border-radius: var(--radius-sm); background: rgba(0,0,0,0.3); }
+.composer__canvas { max-width: 100%; max-height: 56dvh; height: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-md); }
+.composer__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.composer__file { display: grid; place-items: center; text-align: center; cursor: pointer; }
+.composer__file span { pointer-events: none; }
 
 /* ============================================================
    FLOATING CONTROLS
