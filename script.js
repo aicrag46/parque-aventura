@@ -42,12 +42,13 @@ const translations = {
   it: { title: "Parque Aventura", subtitle: "Sistema di Punteggio", archery: "Tiro con l'Arco", paintball: "Paintball", addPlayer: "Aggiungi Giocatore", playerName: "Nome del giocatore", roundsLabel: "Numero di Round", startGame: "Inizia Gioco", currentRound: "Round", of: "di", points: "pt", accuracy: "precisione", hits: "centri", realTimeScoreboard: "Punteggi in tempo reale", endGame: "Termina Gioco", finalResults: "Risultati Finali", newGame: "Nuovo Gioco", achievements: "Conquiste & Statistiche", totalAccuracy: "Precisione Totale", bestPlayer: "Miglior Giocatore", maxScore: "Punteggio Max", average: "Media", individualStats: "Statistiche Individuali", totalScore: "Punteggio Totale", averageScore: "Media", bestRound: "Migliore", miss: "Mancato", chooseActivity: "Scegli Attività", playerSetup: "Configurazione Giocatori", current: "Attuale", add: "Aggiungi", back: "Indietro", start: "Inizia", percentage: "%", playersHint: "Aggiungi almeno un giocatore per iniziare." },
 };
 
+const INSTAGRAM_HANDLE = "@parquebiologicovinhais";
 const EXTRA_I18N = {
-  pt: { sharePhoto: "Criar imagem", takePhoto: "Tirar / escolher foto", noPhoto: "Sem foto", savePhoto: "Guardar", share: "Partilhar", champion: "Campeão", results: "Resultados" },
-  en: { sharePhoto: "Create image", takePhoto: "Take / choose photo", noPhoto: "No photo", savePhoto: "Save", share: "Share", champion: "Champion", results: "Results" },
-  fr: { sharePhoto: "Créer une image", takePhoto: "Prendre / choisir une photo", noPhoto: "Sans photo", savePhoto: "Enregistrer", share: "Partager", champion: "Champion", results: "Résultats" },
-  de: { sharePhoto: "Bild erstellen", takePhoto: "Foto aufnehmen / wählen", noPhoto: "Ohne Foto", savePhoto: "Speichern", share: "Teilen", champion: "Champion", results: "Ergebnisse" },
-  it: { sharePhoto: "Crea immagine", takePhoto: "Scatta / scegli foto", noPhoto: "Senza foto", savePhoto: "Salva", share: "Condividi", champion: "Campione", results: "Risultati" },
+  pt: { sharePhoto: "Criar imagem", takePhoto: "Tirar / escolher foto", noPhoto: "Sem foto", savePhoto: "Guardar", share: "Partilhar", champion: "Campeão", results: "Resultados", shareCta: "Partilha no Instagram e identifica-nos" },
+  en: { sharePhoto: "Create image", takePhoto: "Take / choose photo", noPhoto: "No photo", savePhoto: "Save", share: "Share", champion: "Champion", results: "Results", shareCta: "Share on Instagram and tag us" },
+  fr: { sharePhoto: "Créer une image", takePhoto: "Prendre / choisir une photo", noPhoto: "Sans photo", savePhoto: "Enregistrer", share: "Partager", champion: "Champion", results: "Résultats", shareCta: "Partage sur Instagram et identifie-nous" },
+  de: { sharePhoto: "Bild erstellen", takePhoto: "Foto aufnehmen / wählen", noPhoto: "Ohne Foto", savePhoto: "Speichern", share: "Teilen", champion: "Champion", results: "Ergebnisse", shareCta: "Teile auf Instagram und markiere uns" },
+  it: { sharePhoto: "Crea immagine", takePhoto: "Scatta / scegli foto", noPhoto: "Senza foto", savePhoto: "Salva", share: "Condividi", champion: "Campione", results: "Risultati", shareCta: "Condividi su Instagram e taggaci" },
 };
 Object.keys(EXTRA_I18N).forEach((l) => Object.assign(translations[l], EXTRA_I18N[l]));
 
@@ -701,6 +702,15 @@ function rrect(ctx, x, y, w, h, r) {
   if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
   else { ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 }
+function drawInsta(ctx, cx, cy, s) {
+  ctx.save();
+  ctx.strokeStyle = "#5fe08c"; ctx.fillStyle = "#5fe08c"; ctx.lineWidth = Math.max(2, s * 0.11);
+  const r = s / 2;
+  rrect(ctx, cx - r, cy - r, s, s, s * 0.30); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, s * 0.26, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx + s * 0.27, cy - s * 0.27, s * 0.07, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
 
 function renderShareCard(img) {
   const canvas = document.getElementById("shareCanvas");
@@ -762,7 +772,7 @@ function renderShareCard(img) {
     ctx.fillText(t("results").toUpperCase(), W / 2, listTop);
     listTop += 34;
   }
-  const listBottom = H - 92;
+  const listBottom = H - 138;
   const rowH = Math.min(78, (listBottom - listTop) / Math.max(1, rest.length));
   const avatarR = Math.min(20, rowH * 0.27);
   const nameF = Math.min(34, Math.max(19, rowH * 0.44));
@@ -794,8 +804,19 @@ function renderShareCard(img) {
   });
 
   // Footer stat
-  ctx.textAlign = "center"; ctx.fillStyle = "#5fe08c"; ctx.font = `600 25px ${F}`;
-  ctx.fillText(`${t("totalAccuracy")}: ${s.totalAcc}%  •  ${s.rounds} ${t("currentRound").toLowerCase()}s`, W / 2, H - 46);
+  ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = `600 23px ${F}`;
+  ctx.fillText(`${t("totalAccuracy")}: ${s.totalAcc}%  •  ${s.rounds} ${t("currentRound").toLowerCase()}s`, W / 2, H - 112);
+
+  // Instagram share call-to-action
+  ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,255,255,0.72)"; ctx.font = `600 26px ${F}`;
+  ctx.fillText(t("shareCta"), W / 2, H - 64);
+  ctx.font = `800 34px ${F}`;
+  const handleW = ctx.measureText(INSTAGRAM_HANDLE).width;
+  const glyphSize = 32, gap = 16;
+  const startX = W / 2 - (glyphSize + gap + handleW) / 2;
+  drawInsta(ctx, startX + glyphSize / 2, H - 34, glyphSize);
+  ctx.textAlign = "left"; ctx.fillStyle = "#5fe08c"; ctx.font = `800 34px ${F}`;
+  ctx.fillText(INSTAGRAM_HANDLE, startX + glyphSize + gap, H - 24);
 }
 
 function clip(ctx, text, maxW) {
