@@ -1,7 +1,7 @@
 {
-    "name": "Parque Aventura - Scoreboard",
-    "short_name": "Parque Aventura",
-    "description": "Sistema de pontuação para Arco e Flecha e Paintball",
+    "name": "Parque Biológico Vinhais - Pontuação",
+    "short_name": "PB Vinhais",
+    "description": "Sistema de pontuação para Arco e Flecha e Paintball no Parque Biológico Vinhais",
     "start_url": ".",
     "scope": ".",
     "display": "standalone",
