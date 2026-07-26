@@ -1,5 +1,12 @@
-// Estado global da aplicação
-let gameState = {
+/* ============================================================
+   PARQUE AVENTURA — Immersive Scoring Engine
+   Vanilla JS · no build step · GitHub Pages friendly
+   ============================================================ */
+
+"use strict";
+
+/* ---------- Global state ---------- */
+const gameState = {
   selectedGame: null,
   players: [],
   currentPlayerIndex: 0,
@@ -7,1338 +14,631 @@ let gameState = {
   totalRounds: 20,
   gameStarted: false,
   gameEnded: false,
-  language: "pt", // Idioma padrão
+  language: "pt",
+  soundOn: true,
+  ambienceOn: true,
 };
 
-// Função para mostrar ecrã
-function showScreen(screenId) {
-  // Esconder todos os ecrãs
-  document.querySelectorAll(".screen").forEach((screen) => {
-    screen.classList.remove("active");
-  });
+const AVATAR_COLORS = [
+  ["#5fe08c", "#1f5c3d"], ["#ffd97a", "#f5a623"], ["#7fd0c4", "#2f8f86"],
+  ["#ff8a3d", "#c14a1e"], ["#c9a0ff", "#6b3fa0"], ["#ff9db1", "#c14a63"],
+  ["#8fd0ff", "#2f6fbf"], ["#e0e07a", "#8a8a2e"],
+];
 
-  // Mostrar ecrã selecionado
-  const targetScreen = document.getElementById(screenId);
-  if (targetScreen) {
-    targetScreen.classList.add("active");
+/* ---------- Game configs ---------- */
+const gameConfigs = {
+  archery: { icon: "🏹", defaultRounds: 20, scores: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1], hasMiss: true },
+  paintball: { icon: "🎨", defaultRounds: 40, scores: [30, 20, 10, 8, 6], hasMiss: true },
+};
+
+/* ---------- i18n ---------- */
+const translations = {
+  pt: { title: "Parque Aventura", subtitle: "Sistema de Pontuação", archery: "Arco e Flecha", paintball: "Paintball", addPlayer: "Adicionar Jogador", playerName: "Nome do jogador", roundsLabel: "Número de Rondas", startGame: "Iniciar Jogo", currentRound: "Ronda", of: "de", points: "pts", accuracy: "precisão", hits: "acertos", realTimeScoreboard: "Placar em tempo real", endGame: "Terminar Jogo", finalResults: "Resultados Finais", newGame: "Novo Jogo", achievements: "Conquistas e Estatísticas", totalAccuracy: "Precisão Total", bestPlayer: "Melhor Jogador", maxScore: "Pontuação Máxima", average: "Média", individualStats: "Estatísticas Individuais", totalScore: "Pontuação Total", averageScore: "Média", bestRound: "Melhor", miss: "Fora", chooseActivity: "Escolha a Atividade", playerSetup: "Configuração dos Jogadores", current: "Atual", add: "Adicionar", back: "Voltar", start: "Iniciar", percentage: "%", playersHint: "Adiciona pelo menos um jogador para começar." },
+  en: { title: "Parque Aventura", subtitle: "Scoring System", archery: "Archery", paintball: "Paintball", addPlayer: "Add Player", playerName: "Player name", roundsLabel: "Number of Rounds", startGame: "Start Game", currentRound: "Round", of: "of", points: "pts", accuracy: "accuracy", hits: "hits", realTimeScoreboard: "Real-time scoreboard", endGame: "End Game", finalResults: "Final Results", newGame: "New Game", achievements: "Achievements & Stats", totalAccuracy: "Total Accuracy", bestPlayer: "Best Player", maxScore: "Top Score", average: "Average", individualStats: "Individual Statistics", totalScore: "Total Score", averageScore: "Average", bestRound: "Best", miss: "Miss", chooseActivity: "Choose Activity", playerSetup: "Player Setup", current: "Current", add: "Add", back: "Back", start: "Start", percentage: "%", playersHint: "Add at least one player to begin." },
+  fr: { title: "Parque Aventura", subtitle: "Système de Score", archery: "Tir à l'Arc", paintball: "Paintball", addPlayer: "Ajouter un Joueur", playerName: "Nom du joueur", roundsLabel: "Nombre de Manches", startGame: "Commencer", currentRound: "Manche", of: "sur", points: "pts", accuracy: "précision", hits: "réussis", realTimeScoreboard: "Score en temps réel", endGame: "Terminer", finalResults: "Résultats Finaux", newGame: "Nouveau Jeu", achievements: "Réalisations & Stats", totalAccuracy: "Précision Totale", bestPlayer: "Meilleur Joueur", maxScore: "Meilleur Score", average: "Moyenne", individualStats: "Statistiques Individuelles", totalScore: "Score Total", averageScore: "Moyenne", bestRound: "Meilleure", miss: "Raté", chooseActivity: "Choisir l'Activité", playerSetup: "Configuration des Joueurs", current: "Actuel", add: "Ajouter", back: "Retour", start: "Commencer", percentage: "%", playersHint: "Ajoutez au moins un joueur pour commencer." },
+  de: { title: "Parque Aventura", subtitle: "Punktesystem", archery: "Bogenschießen", paintball: "Paintball", addPlayer: "Spieler Hinzufügen", playerName: "Spielername", roundsLabel: "Anzahl der Runden", startGame: "Spiel Starten", currentRound: "Runde", of: "von", points: "Pkt", accuracy: "Genauigkeit", hits: "Treffer", realTimeScoreboard: "Echtzeit-Punktestand", endGame: "Spiel Beenden", finalResults: "Endergebnisse", newGame: "Neues Spiel", achievements: "Erfolge & Statistiken", totalAccuracy: "Gesamtgenauigkeit", bestPlayer: "Bester Spieler", maxScore: "Höchstwert", average: "Durchschnitt", individualStats: "Einzelstatistiken", totalScore: "Gesamtpunktzahl", averageScore: "Durchschnitt", bestRound: "Beste", miss: "Daneben", chooseActivity: "Aktivität Wählen", playerSetup: "Spieler Einrichtung", current: "Aktuell", add: "Hinzufügen", back: "Zurück", start: "Starten", percentage: "%", playersHint: "Füge mindestens einen Spieler hinzu, um zu beginnen." },
+  it: { title: "Parque Aventura", subtitle: "Sistema di Punteggio", archery: "Tiro con l'Arco", paintball: "Paintball", addPlayer: "Aggiungi Giocatore", playerName: "Nome del giocatore", roundsLabel: "Numero di Round", startGame: "Inizia Gioco", currentRound: "Round", of: "di", points: "pt", accuracy: "precisione", hits: "centri", realTimeScoreboard: "Punteggi in tempo reale", endGame: "Termina Gioco", finalResults: "Risultati Finali", newGame: "Nuovo Gioco", achievements: "Conquiste & Statistiche", totalAccuracy: "Precisione Totale", bestPlayer: "Miglior Giocatore", maxScore: "Punteggio Max", average: "Media", individualStats: "Statistiche Individuali", totalScore: "Punteggio Totale", averageScore: "Media", bestRound: "Migliore", miss: "Mancato", chooseActivity: "Scegli Attività", playerSetup: "Configurazione Giocatori", current: "Attuale", add: "Aggiungi", back: "Indietro", start: "Inizia", percentage: "%", playersHint: "Aggiungi almeno un giocatore per iniziare." },
+};
+
+function t(key) { return (translations[gameState.language] || translations.pt)[key] || key; }
+
+/* Element bindings for dynamic labels by id */
+const I18N_IDS = {
+  scoreboardTitle: "realTimeScoreboard",
+  finalResultsTitle: "finalResults",
+  achievementsTitle: "achievements",
+  individualStatsTitle: "individualStats",
+};
+
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+  Object.entries(I18N_IDS).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.textContent = t(key); });
+  if (gameState.selectedGame) {
+    const nameEl = document.getElementById("selectedGameName");
+    if (nameEl) nameEl.textContent = t(gameState.selectedGame);
   }
+  document.documentElement.lang = gameState.language;
 }
 
-// Sistema de idiomas
-const translations = {
-  pt: {
-    title: "Parque Aventura",
-    subtitle: "Sistema de Pontuação",
-    archery: "Arco e Flecha",
-    paintball: "Paintball",
-    rounds: "rondas (todos jogam por ronda)",
-    addPlayer: "Adicionar Jogador",
-    playerName: "Nome do jogador",
-    roundsLabel: "Número de Rondas",
-    startGame: "Iniciar Jogo",
-    currentRound: "Ronda",
-    of: "de",
-    points: "pts",
-    accuracy: "precisão",
-    hits: "acertos",
-    realTimeScoreboard: "PLACAR EM TEMPO REAL",
-    endGame: "Terminar Jogo",
-    finalResults: "Resultados Finais",
-    newGame: "Novo Jogo",
-    achievements: "Conquistas e Estatísticas",
-    totalAccuracy: "Precisão Total",
-    bestPlayer: "Melhor Jogador",
-    maxScore: "Pontuação Máxima",
-    performance: "Performance",
-    individualStats: "Estatísticas Individuais Detalhadas",
-    position: "Posição",
-    totalScore: "Pontuação Total",
-    averageScore: "Pontuação Média",
-    bestRound: "Melhor Ronda",
-    roundsBreakdown: "Detalhe por Rondas",
-    miss: "FORA",
-    missTitle: "Falha total",
-    chooseActivity: "Escolha a Atividade",
-    playerSetup: "Configuração dos Jogadores",
-    next: "Próximo",
-    current: "Atual",
-    round: "Ronda",
-    rounds: "Rondas",
-    player: "Jogador",
-    players: "Jogadores",
-    total: "Total",
-    average: "Média",
-    best: "Melhor",
-    worst: "Pior",
-    accuracy: "Precisão",
-    hits: "Acertos",
-    misses: "Falhas",
-    percentage: "%",
-    remove: "Remover",
-    add: "Adicionar",
-    start: "Iniciar",
-    end: "Terminar",
-    back: "Voltar",
-    continue: "Continuar",
-    finish: "Finalizar",
-    cancel: "Cancelar",
-    save: "Salvar",
-    edit: "Editar",
-    delete: "Eliminar",
-    confirm: "Confirmar",
-    yes: "Sim",
-    no: "Não",
-    ok: "OK",
-    close: "Fechar",
-    loading: "A carregar...",
-    error: "Erro",
-    success: "Sucesso",
-    warning: "Aviso",
-    info: "Informação",
-  },
-  en: {
-    title: "Parque Aventura",
-    subtitle: "Scoring System",
-    archery: "Archery",
-    paintball: "Paintball",
-    rounds: "rounds (all play per round)",
-    addPlayer: "Add Player",
-    playerName: "Player name",
-    roundsLabel: "Number of Rounds",
-    startGame: "Start Game",
-    currentRound: "Round",
-    of: "of",
-    points: "pts",
-    accuracy: "accuracy",
-    hits: "hits",
-    realTimeScoreboard: "REAL-TIME SCOREBOARD",
-    endGame: "End Game",
-    finalResults: "Final Results",
-    newGame: "New Game",
-    achievements: "Achievements and Statistics",
-    totalAccuracy: "Total Accuracy",
-    bestPlayer: "Best Player",
-    maxScore: "Maximum Score",
-    performance: "Performance",
-    individualStats: "Detailed Individual Statistics",
-    position: "Position",
-    totalScore: "Total Score",
-    averageScore: "Average Score",
-    bestRound: "Best Round",
-    roundsBreakdown: "Rounds Breakdown",
-    miss: "MISS",
-    missTitle: "Complete miss",
-    chooseActivity: "Choose Activity",
-    playerSetup: "Player Setup",
-    next: "Next",
-    current: "Current",
-    round: "Round",
-    rounds: "Rounds",
-    player: "Player",
-    players: "Players",
-    total: "Total",
-    average: "Average",
-    best: "Best",
-    worst: "Worst",
-    accuracy: "Accuracy",
-    hits: "Hits",
-    misses: "Misses",
-    percentage: "%",
-    remove: "Remove",
-    add: "Add",
-    start: "Start",
-    end: "End",
-    back: "Back",
-    continue: "Continue",
-    finish: "Finish",
-    cancel: "Cancel",
-    save: "Save",
-    edit: "Edit",
-    delete: "Delete",
-    confirm: "Confirm",
-    yes: "Yes",
-    no: "No",
-    ok: "OK",
-    close: "Close",
-    loading: "Loading...",
-    error: "Error",
-    success: "Success",
-    warning: "Warning",
-    info: "Information",
-  },
-  fr: {
-    title: "Parque Aventura",
-    subtitle: "Système de Score",
-    archery: "Tir à l'Arc",
-    paintball: "Paintball",
-    rounds: "manches (tous jouent par manche)",
-    addPlayer: "Ajouter un Joueur",
-    playerName: "Nom du joueur",
-    roundsLabel: "Nombre de Manches",
-    startGame: "Commencer le Jeu",
-    currentRound: "Manche",
-    of: "sur",
-    points: "pts",
-    accuracy: "précision",
-    hits: "tirs réussis",
-    realTimeScoreboard: "TABLEAU DE SCORE EN TEMPS RÉEL",
-    endGame: "Terminer le Jeu",
-    finalResults: "Résultats Finaux",
-    newGame: "Nouveau Jeu",
-    achievements: "Réalisations et Statistiques",
-    totalAccuracy: "Précision Totale",
-    bestPlayer: "Meilleur Joueur",
-    maxScore: "Score Maximum",
-    performance: "Performance",
-    individualStats: "Statistiques Individuelles Détaillées",
-    position: "Position",
-    totalScore: "Score Total",
-    averageScore: "Score Moyen",
-    bestRound: "Meilleure Manche",
-    roundsBreakdown: "Détail par Manches",
-    miss: "RATÉ",
-    missTitle: "Échec complet",
-    chooseActivity: "Choisir l'Activité",
-    playerSetup: "Configuration des Joueurs",
-    next: "Suivant",
-    current: "Actuel",
-    round: "Manche",
-    rounds: "Manches",
-    player: "Joueur",
-    players: "Joueurs",
-    total: "Total",
-    average: "Moyenne",
-    best: "Meilleur",
-    worst: "Pire",
-    accuracy: "Précision",
-    hits: "Tirs réussis",
-    misses: "Échecs",
-    percentage: "%",
-    remove: "Supprimer",
-    add: "Ajouter",
-    start: "Commencer",
-    end: "Terminer",
-    back: "Retour",
-    continue: "Continuer",
-    finish: "Terminer",
-    cancel: "Annuler",
-    save: "Sauvegarder",
-    edit: "Modifier",
-    delete: "Supprimer",
-    confirm: "Confirmer",
-    yes: "Oui",
-    no: "Non",
-    ok: "OK",
-    close: "Fermer",
-    loading: "Chargement...",
-    error: "Erreur",
-    success: "Succès",
-    warning: "Avertissement",
-    info: "Information",
-  },
-  de: {
-    title: "Parque Aventura",
-    subtitle: "Punktesystem",
-    archery: "Bogenschießen",
-    paintball: "Paintball",
-    rounds: "Runden (alle spielen pro Runde)",
-    addPlayer: "Spieler Hinzufügen",
-    playerName: "Spielername",
-    roundsLabel: "Anzahl der Runden",
-    startGame: "Spiel Starten",
-    currentRound: "Runde",
-    of: "von",
-    points: "Pkt",
-    accuracy: "Genauigkeit",
-    hits: "Treffer",
-    realTimeScoreboard: "ECHTZEIT-PUNKTESTAND",
-    endGame: "Spiel Beenden",
-    finalResults: "Endergebnisse",
-    newGame: "Neues Spiel",
-    achievements: "Erfolge und Statistiken",
-    totalAccuracy: "Gesamtgenauigkeit",
-    bestPlayer: "Bester Spieler",
-    maxScore: "Höchstpunktzahl",
-    performance: "Leistung",
-    individualStats: "Detaillierte Einzelstatistiken",
-    position: "Position",
-    totalScore: "Gesamtpunktzahl",
-    averageScore: "Durchschnittspunktzahl",
-    bestRound: "Beste Runde",
-    roundsBreakdown: "Rundenaufschlüsselung",
-    miss: "VERFEHLT",
-    missTitle: "Vollständiger Fehlschuss",
-    chooseActivity: "Aktivität Wählen",
-    playerSetup: "Spieler Einrichtung",
-    next: "Nächster",
-    current: "Aktuell",
-    round: "Runde",
-    rounds: "Runden",
-    player: "Spieler",
-    players: "Spieler",
-    total: "Gesamt",
-    average: "Durchschnitt",
-    best: "Bester",
-    worst: "Schlechtester",
-    accuracy: "Genauigkeit",
-    hits: "Treffer",
-    misses: "Fehlschüsse",
-    percentage: "%",
-    remove: "Entfernen",
-    add: "Hinzufügen",
-    start: "Starten",
-    end: "Beenden",
-    back: "Zurück",
-    continue: "Weiter",
-    finish: "Beenden",
-    cancel: "Abbrechen",
-    save: "Speichern",
-    edit: "Bearbeiten",
-    delete: "Löschen",
-    confirm: "Bestätigen",
-    yes: "Ja",
-    no: "Nein",
-    ok: "OK",
-    close: "Schließen",
-    loading: "Laden...",
-    error: "Fehler",
-    success: "Erfolg",
-    warning: "Warnung",
-    info: "Information",
-  },
-  it: {
-    title: "Parque Aventura",
-    subtitle: "Sistema di Punteggio",
-    archery: "Tiro con l'Arco",
-    paintball: "Paintball",
-    rounds: "round (tutti giocano per round)",
-    addPlayer: "Aggiungi Giocatore",
-    playerName: "Nome del giocatore",
-    roundsLabel: "Numero di Round",
-    startGame: "Inizia Gioco",
-    currentRound: "Round",
-    of: "di",
-    points: "pt",
-    accuracy: "precisione",
-    hits: "centri",
-    realTimeScoreboard: "TABELLONE PUNTEGGI IN TEMPO REALE",
-    endGame: "Termina Gioco",
-    finalResults: "Risultati Finali",
-    newGame: "Nuovo Gioco",
-    achievements: "Conquiste e Statistiche",
-    totalAccuracy: "Precisione Totale",
-    bestPlayer: "Miglior Giocatore",
-    maxScore: "Punteggio Massimo",
-    performance: "Prestazione",
-    individualStats: "Statistiche Individuali Dettagliate",
-    position: "Posizione",
-    totalScore: "Punteggio Totale",
-    averageScore: "Punteggio Medio",
-    bestRound: "Miglior Round",
-    roundsBreakdown: "Dettaglio per Round",
-    miss: "MANCATO",
-    missTitle: "Mancato completo",
-    chooseActivity: "Scegli Attività",
-    playerSetup: "Configurazione Giocatori",
-    next: "Prossimo",
-    current: "Attuale",
-    round: "Round",
-    rounds: "Round",
-    player: "Giocatore",
-    players: "Giocatori",
-    total: "Totale",
-    average: "Media",
-    best: "Migliore",
-    worst: "Peggiore",
-    accuracy: "Precisione",
-    hits: "Centri",
-    misses: "Mancati",
-    percentage: "%",
-    remove: "Rimuovi",
-    add: "Aggiungi",
-    start: "Inizia",
-    end: "Termina",
-    back: "Indietro",
-    continue: "Continua",
-    finish: "Finisci",
-    cancel: "Annulla",
-    save: "Salva",
-    edit: "Modifica",
-    delete: "Elimina",
-    confirm: "Conferma",
-    yes: "Sì",
-    no: "No",
-    ok: "OK",
-    close: "Chiudi",
-    loading: "Caricamento...",
-    error: "Errore",
-    success: "Successo",
-    warning: "Avviso",
-    info: "Informazione",
-  },
-};
+function changeLanguage(lang) {
+  if (!translations[lang]) return;
+  gameState.language = lang;
+  document.querySelectorAll(".lang-btn").forEach((b) => b.classList.remove("lang-btn--active"));
+  const btn = [...document.querySelectorAll(".lang-btn")].find((b) => b.getAttribute("onclick") === `changeLanguage('${lang}')`);
+  if (btn) btn.classList.add("lang-btn--active");
+  applyTranslations();
+  if (gameState.gameStarted && !gameState.gameEnded) { updateHUD(); updateScoreboard(); }
+}
 
-// Configurações dos jogos
-const gameConfigs = {
-  archery: {
-    name: "Arco e Flecha",
-    icon: "🏹",
-    defaultRounds: 20,
-    scores: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
-    scoreLabels: {
-      10: "Bulls Eye!",
-      9: "Excelente!",
-      8: "Muito Bom!",
-      7: "Bom!",
-      6: "Regular",
-      5: "Aceitável",
-      4: "Baixo",
-      3: "Muito Baixo",
-      2: "Falha",
-      1: "Falha",
-      0: "Erro",
-    },
-  },
-  paintball: {
-    name: "Paintball",
-    icon: "🎯",
-    defaultRounds: 40,
-    scores: [30, 20, 10, 8, 6, 0],
-    scoreLabels: {
-      30: "Perfeito!",
-      20: "Excelente!",
-      10: "Bom!",
-      8: "Regular",
-      6: "Baixo",
-      0: "Erro",
-    },
-  },
-};
+/* ---------- Screens ---------- */
+function showScreen(screenId) {
+  document.querySelectorAll(".screen").forEach((s) => s.classList.remove("screen--active"));
+  const target = document.getElementById(screenId);
+  if (target) target.classList.add("screen--active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-// Inicialização da aplicação
-document.addEventListener("DOMContentLoaded", function () {
-  // Mostrar tela de seleção de jogo no início
-  showScreen("gameSelection");
-
-  // Inicializar interface com idioma padrão
-  updateInterfaceLanguage();
-
-  // Configurar eventos de teclado
-  const playerNameInput = document.getElementById("playerName");
-  if (playerNameInput) {
-    playerNameInput.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") {
-        addPlayer();
-      }
-    });
-  }
-
-  // Configurar input de rondas
-  const roundsInput = document.getElementById("roundsInput");
-  if (roundsInput) {
-    roundsInput.addEventListener("change", function () {
-      updateRoundsInput();
-    });
-  }
-
-  // Iniciar efeito de neve automaticamente
-  startSnowfall();
-
-  // Atualizar estado do botão de neve
-  const snowToggleBtn = document.getElementById("snowToggleBtn");
-  if (snowToggleBtn) {
-    snowToggleBtn.classList.add("active");
-  }
-});
-
-// Função para selecionar jogo
-function selectGame(gameType) {
-  gameState.selectedGame = gameType;
-  gameState.totalRounds = gameConfigs[gameType].defaultRounds;
-
-  // Limpar jogadores anteriores
-  gameState.players = [];
-  updatePlayersList();
-
-  // Atualizar interface da tela de configuração
-  const gameIcon = document.getElementById("selectedGameIcon");
-  const gameName = document.getElementById("selectedGameName");
-  const roundsInput = document.getElementById("roundsInput");
-
-  if (gameIcon) {
-    const iconSrc =
-      gameType === "archery" ? "Tiro ao Arco.png" : "Paintball.png";
-    const iconAlt = gameType === "archery" ? "Arco e Flecha" : "Paintball";
-    gameIcon.innerHTML = `<img src="${iconSrc}" alt="${iconAlt}" class="game-icon-img">`;
-  }
-  if (gameName)
-    gameName.textContent = gameConfigs[gameType].name[gameState.language];
-  if (roundsInput) roundsInput.value = gameState.totalRounds;
-
-  // Mostrar tela de configuração de jogadores
+/* ---------- Game selection ---------- */
+function selectGame(game) {
+  gameState.selectedGame = game;
+  const cfg = gameConfigs[game];
+  gameState.totalRounds = cfg.defaultRounds;
+  document.getElementById("selectedGameIcon").textContent = cfg.icon;
+  document.getElementById("selectedGameName").textContent = t(game);
+  document.getElementById("roundsInput").value = cfg.defaultRounds;
+  playTone(game === "archery" ? 520 : 320, 0.12, "sine");
+  haptic(12);
   showScreen("playerSetup");
 }
 
-// Função para adicionar jogador
+function backToSelection() { haptic(8); showScreen("gameSelection"); }
+
+/* ---------- Player setup ---------- */
 function addPlayer() {
-  const playerNameInput = document.getElementById("playerName");
-  const playerName = playerNameInput.value.trim();
-
-  if (playerName === "") {
-    alert("Por favor, insira um nome para o jogador.");
-    return;
-  }
-
-  if (
-    gameState.players.some(
-      (p) => p.name.toLowerCase() === playerName.toLowerCase()
-    )
-  ) {
-    alert("Já existe um jogador com esse nome.");
-    return;
-  }
-
-  // Adicionar jogador
-  const newPlayer = {
-    name: playerName,
-    scores: [],
-    totalScore: 0,
-    hits: 0,
-  };
-
-  gameState.players.push(newPlayer);
-  playerNameInput.value = "";
-
-  updatePlayersList();
-  updateStartButton();
+  const input = document.getElementById("playerName");
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  if (gameState.players.length >= 12) return;
+  gameState.players.push({ name, scores: [], totalScore: 0, hits: 0, bestRound: 0 });
+  input.value = "";
+  input.focus();
+  renderPlayers();
+  playTone(440, 0.08, "triangle");
+  haptic(8);
 }
 
-// Função para remover jogador
 function removePlayer(index) {
   gameState.players.splice(index, 1);
-  updatePlayersList();
-  updateStartButton();
+  renderPlayers();
+  haptic(6);
 }
 
-// Função para atualizar lista de jogadores
-function updatePlayersList() {
-  const playersList = document.getElementById("playersList");
-
-  if (playersList) {
-    playersList.innerHTML = "";
-
-    gameState.players.forEach((player, index) => {
-      const playerItem = document.createElement("div");
-      playerItem.className = "player-item";
-      playerItem.innerHTML = `
-                <span class="player-name">${player.name}</span>
-                <button class="remove-player" onclick="removePlayer(${index})">×</button>
-            `;
-      playersList.appendChild(playerItem);
-    });
-  }
+function renderPlayers() {
+  const list = document.getElementById("playersList");
+  const hint = document.getElementById("playersHint");
+  list.innerHTML = "";
+  gameState.players.forEach((p, i) => {
+    const [c1, c2] = AVATAR_COLORS[i % AVATAR_COLORS.length];
+    const chip = document.createElement("div");
+    chip.className = "player-chip";
+    chip.innerHTML = `
+      <span class="player-chip__avatar" style="background:linear-gradient(145deg,${c1},${c2})">${initials(p.name)}</span>
+      <span class="player-chip__name"></span>
+      <button class="player-chip__remove" type="button" aria-label="remove">&times;</button>`;
+    chip.querySelector(".player-chip__name").textContent = p.name;
+    chip.querySelector(".player-chip__remove").addEventListener("click", () => removePlayer(i));
+    list.appendChild(chip);
+  });
+  hint.classList.toggle("players-hint--hidden", gameState.players.length > 0);
+  document.getElementById("startGameBtn").disabled = gameState.players.length === 0;
 }
 
-// Função para atualizar botão de início
-function updateStartButton() {
-  const startBtn = document.getElementById("startGameBtn");
-
-  if (startBtn) {
-    startBtn.disabled = gameState.players.length === 0;
-  }
+function initials(name) {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase() || "?";
 }
 
-// Função para atualizar input de rondas
-function updateRoundsInput() {
-  const roundsInput = document.getElementById("roundsInput");
-  const rounds = parseInt(roundsInput.value);
-
-  if (rounds < 1) {
-    roundsInput.value = 1;
-    gameState.totalRounds = 1;
-  } else if (rounds > 100) {
-    roundsInput.value = 100;
-    gameState.totalRounds = 100;
-  } else {
-    gameState.totalRounds = rounds;
-  }
+function stepRounds(delta) {
+  const input = document.getElementById("roundsInput");
+  let v = parseInt(input.value, 10) || 1;
+  v = Math.min(100, Math.max(1, v + delta));
+  input.value = v;
+  gameState.totalRounds = v;
+  haptic(5);
 }
 
-// Função para iniciar o jogo
+/* ---------- Start game ---------- */
 function startGame() {
-  if (gameState.players.length === 0) {
-    alert("Adicione pelo menos um jogador para iniciar o jogo.");
-    return;
-  }
-
-  gameState.gameStarted = true;
+  if (gameState.players.length === 0) return;
+  let rounds = parseInt(document.getElementById("roundsInput").value, 10) || gameConfigs[gameState.selectedGame].defaultRounds;
+  gameState.totalRounds = Math.min(100, Math.max(1, rounds));
+  gameState.players.forEach((p) => { p.scores = []; p.totalScore = 0; p.hits = 0; p.bestRound = 0; });
   gameState.currentPlayerIndex = 0;
   gameState.currentRound = 1;
+  gameState.gameStarted = true;
+  gameState.gameEnded = false;
 
-  // Inicializar scores dos jogadores
-  gameState.players.forEach((player) => {
-    player.scores = [];
-    player.totalScore = 0;
-    player.hits = 0;
-  });
+  document.getElementById("targetStage").hidden = gameState.selectedGame !== "archery";
+  document.getElementById("shotMarks").innerHTML = "";
 
+  buildScoreOptions();
+  updateHUD();
+  updateScoreboard();
+  applyTranslations();
+  playTone(660, 0.16, "sine");
+  haptic(20);
   showScreen("gameScreen");
-  updateGameInterface();
 }
 
-// Função para atualizar interface do jogo
-function updateGameInterface() {
-  const t = translations[gameState.language];
-  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-  const nextPlayerIndex =
-    (gameState.currentPlayerIndex + 1) % gameState.players.length;
-  const nextPlayer = gameState.players[nextPlayerIndex];
+/* ---------- Score tiers ---------- */
+function scoreTier(game, value) {
+  if (value === 0) return "tier-miss";
+  if (game === "archery") {
+    if (value === 10) return "tier-max";
+    if (value >= 7) return "tier-high";
+    if (value >= 4) return "tier-mid";
+    return "tier-low";
+  }
+  // paintball
+  if (value === 30) return "tier-max";
+  if (value === 20) return "tier-high";
+  if (value === 10) return "tier-mid";
+  return "tier-low";
+}
 
-  // Atualizar jogador atual
-  const currentPlayerElement = document.getElementById("currentPlayer");
-  if (currentPlayerElement) {
-    currentPlayerElement.textContent = currentPlayer.name;
+function buildScoreOptions() {
+  const container = document.getElementById("scoreOptions");
+  const cfg = gameConfigs[gameState.selectedGame];
+  const grid = document.createElement("div");
+  grid.className = `score-grid score-grid--${gameState.selectedGame}`;
+
+  cfg.scores.forEach((value) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `score-btn ${scoreTier(gameState.selectedGame, value)}`;
+    const label = value === (gameState.selectedGame === "archery" ? 10 : 30) ? "★" : "";
+    btn.innerHTML = `<span class="score-btn__value">${value}</span>${label ? `<span class="score-btn__label">${label}</span>` : ""}`;
+    btn.addEventListener("click", (e) => selectScore(value, e));
+    grid.appendChild(btn);
+  });
+
+  if (cfg.hasMiss) {
+    const miss = document.createElement("button");
+    miss.type = "button";
+    miss.className = "score-btn tier-miss";
+    miss.innerHTML = `<span class="score-btn__value">✕</span><span class="score-btn__label" data-i18n="miss">${t("miss")}</span>`;
+    miss.addEventListener("click", (e) => selectScore(0, e));
+    grid.appendChild(miss);
   }
 
-  // Atualizar estatísticas do jogador atual
-  const currentScoreElement = document.getElementById("currentScore");
-  if (currentScoreElement) {
-    currentScoreElement.textContent = `${currentPlayer.totalScore} ${t.points}`;
+  container.innerHTML = "";
+  container.appendChild(grid);
+}
+
+/* ---------- Scoring ---------- */
+function selectScore(value, evt) {
+  if (gameState.gameEnded) return;
+  const player = gameState.players[gameState.currentPlayerIndex];
+  player.scores.push(value);
+  player.totalScore += value;
+  if (value > 0) player.hits += 1;
+  if (value > player.bestRound) player.bestRound = value;
+
+  // feedback
+  scorePop(value, evt);
+  if (gameState.selectedGame === "archery") addShotMark(value);
+  soundForScore(value);
+  haptic(value === 0 ? 30 : 12);
+
+  // advance
+  gameState.currentPlayerIndex += 1;
+  if (gameState.currentPlayerIndex >= gameState.players.length) {
+    gameState.currentPlayerIndex = 0;
+    gameState.currentRound += 1;
   }
 
-  const currentAccuracyElement = document.getElementById("currentAccuracy");
-  if (currentAccuracyElement) {
-    const accuracy =
-      gameState.totalRounds > 0
-        ? Math.round((currentPlayer.hits / gameState.totalRounds) * 100)
-        : 0;
-    currentAccuracyElement.textContent = `${accuracy}${t.percentage}`;
-  }
+  if (gameState.currentRound > gameState.totalRounds) { endGame(); return; }
 
-  // Atualizar progresso do jogo
-  const currentRoundText = document.getElementById("currentRoundText");
-  if (currentRoundText) {
-    currentRoundText.textContent = `${t.currentRound} ${gameState.currentRound}`;
-  }
-
-  const totalRoundsText = document.getElementById("totalRoundsText");
-  if (totalRoundsText) {
-    totalRoundsText.textContent = `${t.of} ${gameState.totalRounds}`;
-  }
-
-  // Atualizar barra de progresso
-  const progressFill = document.getElementById("progressFill");
-  if (progressFill) {
-    const progress =
-      ((gameState.currentRound - 1) / gameState.totalRounds) * 100;
-    progressFill.style.width = `${progress}%`;
-  }
-
-  // Garantir que as opções de pontuação estão visíveis/atualizadas
-  updateScoreOptions();
-
-  // Atualizar placar
+  updateHUD();
   updateScoreboard();
 }
 
-// Função para atualizar opções de pontuação
-function updateScoreOptions() {
-  const scoreOptions = document.getElementById("scoreOptions");
-  const config = gameConfigs[gameState.selectedGame];
-  const t = translations[gameState.language];
-
-  // Criar grid específico baseado no jogo
-  const gridClass =
-    gameState.selectedGame === "paintball"
-      ? "score-grid paintball-grid"
-      : "score-grid";
-  scoreOptions.innerHTML = `<div class="${gridClass}"></div>`;
-  const scoreGrid = scoreOptions.querySelector(".score-grid");
-
-  if (gameState.selectedGame === "archery") {
-    // Layout para arco e flecha: 2 linhas de 5 botões + botão "Fora"
-    const scores = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-
-    scores.forEach((score) => {
-      const scoreBtn = document.createElement("button");
-      scoreBtn.className = `score-btn ${gameState.selectedGame}-${score}`;
-      scoreBtn.textContent = score;
-      scoreBtn.title = config.scoreLabels[score];
-      scoreBtn.onclick = () => recordScore(score);
-      scoreGrid.appendChild(scoreBtn);
-    });
-
-    // Adicionar botão "Fora"
-    const missBtn = document.createElement("button");
-    missBtn.className = "score-btn archery-miss";
-    missBtn.innerHTML = `❌<br>${t.miss}`;
-    missBtn.title = t.missTitle;
-    missBtn.onclick = () => recordScore(0);
-    scoreGrid.appendChild(missBtn);
-  } else {
-    // Layout para paintball: 2 linhas de 3 botões
-    config.scores.forEach((score) => {
-      const scoreBtn = document.createElement("button");
-      scoreBtn.className = `score-btn ${gameState.selectedGame}-${score}`;
-      scoreBtn.textContent = score;
-      scoreBtn.title = config.scoreLabels[score];
-      scoreBtn.onclick = () => recordScore(score);
-      scoreGrid.appendChild(scoreBtn);
-    });
-  }
+function playedRounds(player) { return player.scores.length; }
+function accuracyOf(player, useTotal) {
+  const denom = useTotal ? gameState.totalRounds : Math.max(1, playedRounds(player));
+  return Math.round((player.hits / denom) * 100);
 }
 
-// Função para registar pontuação
-function recordScore(score) {
-  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+/* ---------- HUD ---------- */
+function updateHUD() {
+  const player = gameState.players[gameState.currentPlayerIndex];
+  const [c1, c2] = AVATAR_COLORS[gameState.currentPlayerIndex % AVATAR_COLORS.length];
+  const avatar = document.getElementById("hudAvatar");
+  avatar.textContent = initials(player.name);
+  avatar.style.background = `linear-gradient(145deg,${c1},${c2})`;
+  document.getElementById("currentPlayer").textContent = player.name;
+  document.getElementById("currentScore").textContent = player.totalScore;
+  document.getElementById("currentAccuracy").textContent = accuracyOf(player, false) + "%";
+  document.getElementById("currentRoundText").textContent = gameState.currentRound;
+  document.getElementById("totalRoundsText").textContent = "/ " + gameState.totalRounds;
 
-  // Adicionar pontuação
-  currentPlayer.scores.push(score);
-  currentPlayer.totalScore += score;
-
-  // Debug: Verificar pontuação adicionada
-
-  // Contar acertos (pontuação > 0)
-  if (score > 0) {
-    currentPlayer.hits++;
-  }
-
-  // Passar para o próximo jogador (todos jogam uma vez por ronda)
-  gameState.currentPlayerIndex++;
-
-  // Verificar se todos os jogadores jogaram nesta ronda
-  if (gameState.currentPlayerIndex >= gameState.players.length) {
-    // Todos os jogadores jogaram, próxima ronda
-    gameState.currentRound++;
-    gameState.currentPlayerIndex = 0; // Voltar ao primeiro jogador
-
-    // Verificar se o jogo terminou
-    if (gameState.currentRound > gameState.totalRounds) {
-      gameState.gameEnded = true;
-      showFinalResults();
-      return;
-    }
-  }
-
-  // Atualizar interface
-  updateGameInterface();
+  const ring = document.getElementById("progressRing");
+  const circumference = 2 * Math.PI * 19;
+  const progress = (gameState.currentRound - 1) / gameState.totalRounds;
+  ring.style.strokeDashoffset = String(circumference * (1 - progress));
 }
 
-// Função para terminar o jogo
+/* ---------- Scoreboard ---------- */
+function updateScoreboard() {
+  const content = document.getElementById("scoreboardContent");
+  const ranked = gameState.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.totalScore - a.p.totalScore);
+  const maxScore = Math.max(1, ...gameState.players.map((p) => p.totalScore));
+
+  content.innerHTML = "";
+  ranked.forEach((entry, rank) => {
+    const { p, i } = entry;
+    const [c1, c2] = AVATAR_COLORS[i % AVATAR_COLORS.length];
+    const isCurrent = i === gameState.currentPlayerIndex;
+    const isLeader = rank === 0 && p.totalScore > 0;
+    const row = document.createElement("div");
+    row.className = `sb-row${isCurrent ? " sb-row--current" : ""}${isLeader ? " sb-row--leader" : ""}`;
+    row.innerHTML = `
+      <span class="sb-row__bar" style="width:${(p.totalScore / maxScore) * 100}%"></span>
+      <span class="sb-row__rank">${isLeader ? '<span class="sb-crown">👑</span>' : rank + 1}</span>
+      <span class="sb-row__name"><span class="player-chip__avatar" style="width:22px;height:22px;font-size:0.6rem;background:linear-gradient(145deg,${c1},${c2})">${initials(p.name)}</span><span class="sb-name-text"></span></span>
+      <span class="sb-row__score">${p.totalScore}</span>`;
+    row.querySelector(".sb-name-text").textContent = p.name;
+    content.appendChild(row);
+  });
+}
+
+/* ---------- Shot marks on target ---------- */
+function addShotMark(value) {
+  const g = document.getElementById("shotMarks");
+  const radii = { 10: 3, 9: 9, 8: 17, 7: 25, 6: 35, 5: 45, 4: 56, 3: 68, 2: 80, 1: 91, 0: 100 };
+  const r = radii[value] ?? 100;
+  const angle = Math.random() * Math.PI * 2;
+  const jitter = value === 0 ? 3 : Math.min(6, Math.max(2, r * 0.18));
+  const rr = Math.max(0, r - Math.random() * jitter);
+  const x = 100 + Math.cos(angle) * rr;
+  const y = 100 + Math.sin(angle) * rr;
+  const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  dot.setAttribute("cx", x.toFixed(1));
+  dot.setAttribute("cy", y.toFixed(1));
+  dot.setAttribute("r", "3.2");
+  dot.setAttribute("class", "shot-mark");
+  if (value === 0) dot.style.opacity = "0.4";
+  g.appendChild(dot);
+  while (g.childElementCount > 24) g.removeChild(g.firstChild);
+}
+
+/* ---------- End game / results ---------- */
 function endGame() {
   gameState.gameEnded = true;
+  gameState.gameStarted = false;
+  const ranked = [...gameState.players].sort((a, b) => b.totalScore - a.totalScore);
+  renderPodium(ranked);
+  renderFinalResults(ranked);
+  renderAchievements(ranked);
+  renderIndividualStats(ranked);
+  applyTranslations();
   showScreen("resultsScreen");
-  showFinalResults();
+  celebrate();
+  winFanfare();
+  haptic([20, 40, 20, 40, 60]);
 }
 
-// Função para mostrar resultados finais
-function showFinalResults() {
-  const t = translations[gameState.language];
-  gameState.gameEnded = true;
+function playerIndexOf(player) { return gameState.players.indexOf(player); }
 
-  // Ordenar jogadores por pontuação
-  const sortedPlayers = [...gameState.players].sort(
-    (a, b) => b.totalScore - a.totalScore
-  );
-
-  // Gerar resultados finais
-  const finalResults = document.getElementById("finalResults");
-  finalResults.innerHTML = "";
-
-  sortedPlayers.forEach((player, index) => {
-    const accuracy =
-      gameState.totalRounds > 0
-        ? Math.round((player.hits / gameState.totalRounds) * 100)
-        : 0;
-    const averageScore =
-      gameState.totalRounds > 0
-        ? Math.round(player.totalScore / gameState.totalRounds)
-        : 0;
-
-    let medalClass = "";
-    if (index === 0) medalClass = "gold";
-    else if (index === 1) medalClass = "silver";
-    else if (index === 2) medalClass = "bronze";
-
-    const playerDiv = document.createElement("div");
-    playerDiv.className = `final-player ${medalClass}`;
-
-    playerDiv.innerHTML = `
-            <div class="position-badge">${index + 1}</div>
-            <div class="player-info-final">
-                <h3>${player.name}</h3>
-                <div class="final-stats">
-                    <div class="final-score">${t.totalScore}: ${
-      player.totalScore
-    } ${t.points}</div>
-                    <div class="final-accuracy">${t.accuracy}: ${accuracy}${
-      t.percentage
-    }</div>
-                    <div class="final-hits">${t.hits}: ${player.hits}/${
-      gameState.totalRounds
-    }</div>
-                </div>
-            </div>
-        `;
-
-    finalResults.appendChild(playerDiv);
+function renderPodium(ranked) {
+  const podium = document.getElementById("podium");
+  const order = [ranked[1], ranked[0], ranked[2]]; // 2nd, 1st, 3rd
+  const posClass = ["podium__col--2", "podium__col--1", "podium__col--3"];
+  const medals = { 0: "🥇", 1: "🥈", 2: "🥉" };
+  podium.innerHTML = "";
+  order.forEach((player, slot) => {
+    if (!player) return;
+    const rank = ranked.indexOf(player);
+    const gi = playerIndexOf(player);
+    const [c1, c2] = AVATAR_COLORS[gi % AVATAR_COLORS.length];
+    const col = document.createElement("div");
+    col.className = `podium__col ${posClass[slot]}`;
+    col.innerHTML = `
+      <span class="podium__medal">${medals[rank]}</span>
+      <span class="podium__avatar" style="background:linear-gradient(145deg,${c1},${c2})">${initials(player.name)}</span>
+      <span class="podium__name"></span>
+      <span class="podium__score">${player.totalScore}</span>
+      <div class="podium__block"><span class="podium__pos">${rank + 1}</span></div>`;
+    col.querySelector(".podium__name").textContent = player.name;
+    podium.appendChild(col);
   });
+}
 
-  // Gerar conquistas
-  const achievementsGrid = document.getElementById("achievementsGrid");
-  achievementsGrid.innerHTML = "";
+function renderFinalResults(ranked) {
+  const box = document.getElementById("finalResults");
+  box.innerHTML = "";
+  ranked.forEach((player, rank) => {
+    const gi = playerIndexOf(player);
+    const [c1, c2] = AVATAR_COLORS[gi % AVATAR_COLORS.length];
+    const row = document.createElement("div");
+    row.className = `result-row${rank === 0 ? " result-row--gold" : ""}`;
+    row.innerHTML = `
+      <span class="result-row__rank">${rank + 1}</span>
+      <span class="result-row__name"><span class="player-chip__avatar" style="width:26px;height:26px;font-size:0.65rem;background:linear-gradient(145deg,${c1},${c2})">${initials(player.name)}</span><span class="rr-name"></span></span>
+      <span class="result-row__score">${player.totalScore} <small>${t("points")}</small></span>`;
+    row.querySelector(".rr-name").textContent = player.name;
+    box.appendChild(row);
+  });
+}
 
-  const totalAccuracy = Math.round(
-    (sortedPlayers.reduce((sum, p) => sum + p.hits, 0) /
-      (gameState.players.length * gameState.totalRounds)) *
-      100
-  );
-  const bestPlayer = sortedPlayers[0];
-  const maxScore = Math.max(...gameState.players.map((p) => p.totalScore));
+function renderAchievements(ranked) {
+  const grid = document.getElementById("achievementsGrid");
+  const totalHits = gameState.players.reduce((s, p) => s + p.hits, 0);
+  const totalShots = gameState.players.reduce((s, p) => s + playedRounds(p), 0);
+  const totalAcc = totalShots ? Math.round((totalHits / totalShots) * 100) : 0;
+  const best = ranked[0];
+  const maxRound = Math.max(0, ...gameState.players.map((p) => p.bestRound));
+  const avg = best ? (best.totalScore / Math.max(1, playedRounds(best))).toFixed(1) : "0";
 
-  // Calcular média de pontos
-  const totalPoints = gameState.players.reduce(
-    (sum, p) => sum + p.totalScore,
-    0
-  );
-  const averageScore = Math.round(totalPoints / gameState.players.length);
-
-  const achievements = [
-    {
-      icon: "🏹",
-      title: t.totalAccuracy,
-      value: `${totalAccuracy}${t.percentage}`,
-    },
-    { icon: "⚡", title: t.bestPlayer, value: bestPlayer.name },
-    { icon: "🔥", title: t.maxScore, value: `${maxScore} ${t.points}` },
-    {
-      icon: "📊",
-      title: "MÉDIA DE PONTOS",
-      value: `${averageScore} ${t.points}`,
-    },
+  const cards = [
+    { icon: "🎯", value: totalAcc + "%", label: t("totalAccuracy") },
+    { icon: "🏆", value: best ? best.name : "—", label: t("bestPlayer") },
+    { icon: "💥", value: maxRound, label: t("maxScore") },
+    { icon: "📊", value: avg, label: t("average") },
   ];
-
-  achievements.forEach((achievement) => {
-    const achievementCard = document.createElement("div");
-    achievementCard.className = "achievement-card";
-    achievementCard.innerHTML = `
-            <div class="achievement-icon">${achievement.icon}</div>
-            <div class="achievement-title">${achievement.title}</div>
-            <div class="achievement-value">${achievement.value}</div>
-        `;
-    achievementsGrid.appendChild(achievementCard);
-  });
-
-  // Atualizar estatísticas individuais
-  updateIndividualStats();
-
-  // Mostrar tela de resultados
-  showScreen("resultsScreen");
-
-  // Efeito de confete
-  createConfettiEffect();
+  grid.innerHTML = cards.map((c) => `
+    <div class="achievement-card">
+      <div class="achievement-icon">${c.icon}</div>
+      <div class="achievement-value">${escapeHtml(String(c.value))}</div>
+      <div class="achievement-label">${escapeHtml(c.label)}</div>
+    </div>`).join("");
 }
 
-// Função para atualizar conquistas e estatísticas
-function updateAchievements(sortedPlayers) {
-  if (sortedPlayers.length === 0) return;
-
-  const totalScore = gameState.players.reduce(
-    (sum, player) => sum + player.totalScore,
-    0
-  );
-  const totalHits = gameState.players.reduce(
-    (sum, player) => sum + player.hits,
-    0
-  );
-  const totalShots = gameState.players.length * gameState.totalRounds;
-  const averageAccuracy =
-    totalShots > 0 ? Math.round((totalHits / totalShots) * 100) : 0;
-
-  // Atualizar precisão total
-  document.getElementById("totalAccuracy").textContent = `${averageAccuracy}%`;
-
-  // Atualizar melhor jogador
-  const bestPlayer = sortedPlayers[0];
-  document.getElementById("bestPlayer").textContent = bestPlayer.name;
-
-  // Atualizar pontuação máxima
-  document.getElementById(
-    "maxScore"
-  ).textContent = `${bestPlayer.totalScore} pts`;
-
-  // Adicionar animações aos cards
-  animateAchievementCards();
-}
-
-// Função para animar os cards de conquistas
-function animateAchievementCards() {
-  const cards = document.querySelectorAll(".achievement-card");
-  cards.forEach((card, index) => {
-    setTimeout(() => {
-      card.style.transform = "scale(1.05)";
-      card.style.boxShadow = "0 15px 40px rgba(0,0,0,0.3)";
-
-      setTimeout(() => {
-        card.style.transform = "scale(1)";
-        card.style.boxShadow = "0 8px 25px rgba(0,0,0,0.15)";
-      }, 200);
-    }, index * 100);
+function renderIndividualStats(ranked) {
+  const box = document.getElementById("individualStatsContent");
+  box.innerHTML = "";
+  ranked.forEach((player) => {
+    const gi = playerIndexOf(player);
+    const [c1, c2] = AVATAR_COLORS[gi % AVATAR_COLORS.length];
+    const avg = (player.totalScore / Math.max(1, playedRounds(player))).toFixed(1);
+    const acc = accuracyOf(player, true);
+    const card = document.createElement("div");
+    card.className = "stat-card";
+    card.innerHTML = `
+      <div class="stat-card__head">
+        <span class="stat-card__avatar" style="background:linear-gradient(145deg,${c1},${c2})">${initials(player.name)}</span>
+        <span class="stat-card__name"></span>
+      </div>
+      <div class="stat-card__grid">
+        <div class="stat-mini"><b>${player.totalScore}</b><small>${escapeHtml(t("totalScore"))}</small></div>
+        <div class="stat-mini"><b>${avg}</b><small>${escapeHtml(t("average"))}</small></div>
+        <div class="stat-mini"><b>${player.bestRound}</b><small>${escapeHtml(t("bestRound"))}</small></div>
+        <div class="stat-mini"><b>${acc}%</b><small>${escapeHtml(t("accuracy"))}</small></div>
+      </div>`;
+    card.querySelector(".stat-card__name").textContent = player.name;
+    box.appendChild(card);
   });
 }
 
-// Função para adicionar efeitos de confete para o vencedor
-function addConfettiEffect() {
-  const winner = document.querySelector(".final-player.winner");
-  if (winner) {
-    createConfetti(winner);
-  }
-}
-
-// Função para criar confete
-function createConfetti(element) {
-  const colors = [
-    "#ff6b6b",
-    "#4ecdc4",
-    "#45b7d1",
-    "#96ceb4",
-    "#feca57",
-    "#ff9ff3",
-    "#54a0ff",
-    "#5f27cd",
-  ];
-
-  for (let i = 0; i < 50; i++) {
-    setTimeout(() => {
-      const confetti = document.createElement("div");
-      confetti.style.position = "absolute";
-      confetti.style.width = "10px";
-      confetti.style.height = "10px";
-      confetti.style.background =
-        colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.left = Math.random() * 100 + "%";
-      confetti.style.top = "-10px";
-      confetti.style.borderRadius = "50%";
-      confetti.style.pointerEvents = "none";
-      confetti.style.zIndex = "1000";
-
-      document.body.appendChild(confetti);
-
-      const animation = confetti.animate(
-        [
-          { transform: "translateY(0px) rotate(0deg)", opacity: 1 },
-          {
-            transform: `translateY(${window.innerHeight}px) rotate(${
-              Math.random() * 360
-            }deg)`,
-            opacity: 0,
-          },
-        ],
-        {
-          duration: 3000 + Math.random() * 2000,
-          easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        }
-      );
-
-      animation.onfinish = () => confetti.remove();
-    }, i * 100);
-  }
-}
-
-// Função para criar efeito de confete (se não existir)
-function createConfettiEffect() {
-  // Usar a função createConfetti existente
-  createConfetti(document.body);
-}
-
-// ==========================================
-// Sistema de Neve (Snowfall Effect)
-// ==========================================
-
-let snowflakes = [];
-let snowfallInterval = null;
-let isSnowing = false;
-
-// Função para criar um floco de neve
-function createSnowflake() {
-  const snowContainer = document.getElementById("snow-container");
-  if (!snowContainer) return null;
-
-  const snowflake = document.createElement("div");
-  snowflake.className = "snowflake";
-
-  // Tamanho aleatório entre 4px e 10px
-  const size = Math.random() * 6 + 4;
-  snowflake.style.width = size + "px";
-  snowflake.style.height = size + "px";
-
-  // Posição horizontal aleatória
-  snowflake.style.left = Math.random() * 100 + "%";
-
-  // Opacidade aleatória para efeito mais natural
-  snowflake.style.opacity = Math.random() * 0.5 + 0.5;
-
-  // Velocidade de queda aleatória
-  const fallSpeed = Math.random() * 3 + 2; // entre 2s e 5s
-  snowflake.style.animationDuration = fallSpeed + "s";
-
-  // Delay aleatório para começar a animação
-  snowflake.style.animationDelay = Math.random() * 2 + "s";
-
-  // Adicionar ao container de neve
-  snowContainer.appendChild(snowflake);
-
-  // Remover após a animação
-  setTimeout(() => {
-    if (snowflake.parentNode) {
-      snowflake.remove();
-    }
-  }, (fallSpeed + 2) * 1000);
-
-  return snowflake;
-}
-
-// Função para iniciar o efeito de neve
-function startSnowfall() {
-  if (isSnowing) return;
-
-  isSnowing = true;
-
-  // Criar container de neve se não existir
-  let snowContainer = document.getElementById("snow-container");
-  if (!snowContainer) {
-    snowContainer = document.createElement("div");
-    snowContainer.id = "snow-container";
-    snowContainer.className = "snow-container";
-    document.body.appendChild(snowContainer);
-  }
-
-  // Criar flocos de neve continuamente
-  snowfallInterval = setInterval(() => {
-    createSnowflake();
-  }, 80); // Criar um novo floco a cada 80ms (mais neve)
-}
-
-// Função para parar o efeito de neve
-function stopSnowfall() {
-  if (!isSnowing) return;
-
-  isSnowing = false;
-
-  if (snowfallInterval) {
-    clearInterval(snowfallInterval);
-    snowfallInterval = null;
-  }
-
-  // Remover todos os flocos de neve
-  const snowflakes = document.querySelectorAll(".snowflake");
-  snowflakes.forEach((snowflake) => {
-    snowflake.remove();
-  });
-
-  // Remover container
-  const snowContainer = document.getElementById("snow-container");
-  if (snowContainer) {
-    snowContainer.remove();
-  }
-}
-
-// Função para alternar o efeito de neve
-function toggleSnowfall() {
-  const snowToggleBtn = document.getElementById("snowToggleBtn");
-
-  if (isSnowing) {
-    stopSnowfall();
-    if (snowToggleBtn) {
-      snowToggleBtn.classList.remove("active");
-      snowToggleBtn.textContent = "❄️";
-    }
-  } else {
-    startSnowfall();
-    if (snowToggleBtn) {
-      snowToggleBtn.classList.add("active");
-      snowToggleBtn.textContent = "❄️";
-    }
-  }
-}
-
-// Função para novo jogo
+/* ---------- New game ---------- */
 function newGame() {
-  // Resetar estado
-  gameState = {
-    selectedGame: null,
-    players: [],
-    currentPlayerIndex: 0,
-    currentRound: 1,
-    totalRounds: 20,
-    gameStarted: false,
-    gameEnded: false,
-    language: "pt", // Resetar idioma
-  };
-
-  // Mostrar tela de seleção
+  gameState.selectedGame = null;
+  gameState.players = [];
+  gameState.currentPlayerIndex = 0;
+  gameState.currentRound = 1;
+  gameState.gameStarted = false;
+  gameState.gameEnded = false;
+  document.getElementById("playersList").innerHTML = "";
+  document.getElementById("startGameBtn").disabled = true;
+  renderPlayers();
+  applyTranslations();
   showScreen("gameSelection");
+  haptic(10);
 }
 
-// Função para atualizar placar
-function updateScoreboard() {
-  const t = translations[gameState.language];
-  const scoreboardContent = document.getElementById("scoreboardContent");
-  scoreboardContent.innerHTML = "";
-
-  gameState.players.forEach((player, index) => {
-    const isCurrentPlayer = index === gameState.currentPlayerIndex;
-
-    const playerDiv = document.createElement("div");
-    playerDiv.className = `player-score ${isCurrentPlayer ? "current" : ""}`;
-
-    const playerHeader = document.createElement("div");
-    playerHeader.className = "player-header";
-    playerHeader.innerHTML = `
-            <span class="player-name">${player.name}</span>
-            <span class="player-total">${player.totalScore} ${t.points}</span>
-        `;
-
-    const playerRounds = document.createElement("div");
-    playerRounds.className = "player-rounds";
-
-    // Encontrar a pontuação mais alta do jogador
-    const maxScore = player.scores.length > 0 ? Math.max(...player.scores) : 0;
-
-    // Mostrar pontuações das rondas
-    for (let i = 0; i < gameState.totalRounds; i++) {
-      const roundScore = document.createElement("span");
-      roundScore.className = "round-score";
-
-      if (i < player.scores.length) {
-        roundScore.innerHTML = `<div class="round-number">${
-          i + 1
-        }</div><div class="round-points">${player.scores[i]}</div>`;
-
-        // Marcar as rondas com a pontuação mais alta
-        if (player.scores[i] === maxScore && maxScore > 0) {
-          roundScore.classList.add("best-score");
-        }
-      } else {
-        roundScore.innerHTML = `<div class="round-number">${
-          i + 1
-        }</div><div class="round-points">-</div>`;
-      }
-
-      playerRounds.appendChild(roundScore);
-    }
-
-    // Adicionar indicador de ronda atual se for o jogador ativo
-    if (isCurrentPlayer) {
-      const roundIndicator = document.createElement("div");
-      roundIndicator.style.cssText =
-        "margin-top: 15px; font-size: 1.1rem; color: #2E7D32; font-weight: 800; background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%); padding: 12px 16px; border-radius: 15px; border: 2px solid #4CAF50; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3); text-align: center;";
-      roundIndicator.textContent = `${t.currentRound} ${gameState.currentRound} ${t.of} ${gameState.totalRounds}`;
-      playerDiv.appendChild(roundIndicator);
-    }
-
-    playerDiv.appendChild(playerHeader);
-    playerDiv.appendChild(playerRounds);
-    scoreboardContent.appendChild(playerDiv);
-  });
+/* ---------- Utilities ---------- */
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
+function haptic(pattern) { if (navigator.vibrate) try { navigator.vibrate(pattern); } catch (_) {} }
 
-// Função para atualizar estatísticas individuais
-function updateIndividualStats() {
-  const t = translations[gameState.language];
-  const individualStatsContent = document.getElementById(
-    "individualStatsContent"
-  );
-  individualStatsContent.innerHTML = "";
-
-  gameState.players.forEach((player, index) => {
-    const accuracy =
-      gameState.totalRounds > 0
-        ? Math.round((player.hits / gameState.totalRounds) * 100)
-        : 0;
-    const averageScore =
-      gameState.totalRounds > 0
-        ? Math.round(player.totalScore / gameState.totalRounds)
-        : 0;
-
-    const playerStatsDiv = document.createElement("div");
-    playerStatsDiv.className = "player-stats-card";
-
-    playerStatsDiv.innerHTML = `
-            <div class="player-stats-header">
-                <h4>${player.name}</h4>
-                <span class="player-position">${index + 1}º</span>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-label">${t.totalScore}</span>
-                    <span class="stat-value">${player.totalScore} ${
-      t.points
-    }</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">${t.averageScore}</span>
-                    <span class="stat-value">${averageScore} ${t.points}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">${t.hits}</span>
-                    <span class="stat-value">${player.hits}/${
-      gameState.totalRounds
-    }</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">${t.accuracy}</span>
-                    <span class="stat-value">${accuracy}${t.percentage}</span>
-                </div>
-            </div>
-                            <div class="rounds-breakdown">
-                <h5>${t.rounds}:</h5>
-                <div class="rounds-grid">
-                    ${player.scores
-                      .map((score, roundIndex) => {
-                        const maxScore = Math.max(...player.scores);
-                        const isBestScore = score === maxScore && maxScore > 0;
-                        const isGoldenRound =
-                          score === maxScore && maxScore > 0;
-                        return `
-                            <div class="round-score ${
-                              isGoldenRound ? "golden-round" : ""
-                            }">
-                                <div class="round-number">${
-                                  roundIndex + 1
-                                }</div>
-                                <div class="round-points">${score}</div>
-                            </div>
-                        `;
-                      })
-                      .join("")}
-                </div>
-            </div>
-        `;
-
-    individualStatsContent.appendChild(playerStatsDiv);
-  });
-}
-
-// Função para mudar idioma
-function changeLanguage(lang) {
-  gameState.language = lang;
-  updateInterfaceLanguage();
-
-  // Atualizar botões de idioma ativos
-  document.querySelectorAll(".lang-btn").forEach((btn) => {
-    btn.classList.remove("active");
-  });
-  event.target.classList.add("active");
-}
-
-// Função para atualizar interface com o idioma selecionado
-function updateInterfaceLanguage() {
-  const t = translations[gameState.language];
-
-  // Atualizar título (mantém sempre "Parque Aventura")
-  const titleElement = document.querySelector(".header h1");
-  if (titleElement) titleElement.textContent = "Parque Aventura";
-
-  const subtitleElement = document.querySelector(".header p");
-  if (subtitleElement) subtitleElement.textContent = t.subtitle;
-
-  // Atualizar títulos das telas
-  const chooseActivityTitle = document.querySelector(
-    ".game-selection .section-title"
-  );
-  if (chooseActivityTitle) chooseActivityTitle.textContent = t.chooseActivity;
-
-  const playerSetupTitle = document.querySelector("#playerSetup h2");
-  if (playerSetupTitle) playerSetupTitle.textContent = t.playerSetup;
-
-  const finalResultsTitle = document.querySelector("#finalResultsTitle");
-  if (finalResultsTitle) finalResultsTitle.textContent = t.finalResults;
-
-  // Atualizar cartões de jogo (seleção de atividade)
-  const gameCards = document.querySelectorAll(".game-cards .game-card");
-  if (gameCards && gameCards.length >= 2) {
-    const archeryCard = gameCards[0];
-    const paintballCard = gameCards[1];
-    const archeryTitle = archeryCard.querySelector("h3");
-    const archerySubtitle = archeryCard.querySelector("p");
-    const paintballTitle = paintballCard.querySelector("h3");
-    const paintballSubtitle = paintballCard.querySelector("p");
-    if (archeryTitle) archeryTitle.textContent = t.archery;
-    if (archerySubtitle) archerySubtitle.textContent = t.rounds;
-    if (paintballTitle) paintballTitle.textContent = t.paintball;
-    if (paintballSubtitle) paintballSubtitle.textContent = t.rounds;
+function scorePop(value, evt) {
+  const el = document.createElement("div");
+  el.className = "score-pop";
+  el.textContent = value === 0 ? t("miss") : "+" + value;
+  if (value === 0) el.style.color = "var(--clay-400)";
+  let x = window.innerWidth / 2, y = window.innerHeight / 2;
+  if (evt && evt.currentTarget) {
+    const r = evt.currentTarget.getBoundingClientRect();
+    x = r.left + r.width / 2; y = r.top;
   }
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 820);
+}
 
-  // Atualizar labels
-  const addPlayerBtn = document.querySelector(".add-btn");
-  if (addPlayerBtn) addPlayerBtn.textContent = t.addPlayer;
-
-  const playerNameInput = document.getElementById("playerName");
-  if (playerNameInput) playerNameInput.placeholder = t.playerName;
-
-  const roundsLabel = document.querySelector(".game-settings label");
-  if (roundsLabel) roundsLabel.textContent = t.roundsLabel;
-
-  const startBtn = document.querySelector(".start-btn");
-  if (startBtn) startBtn.textContent = t.startGame;
-
-  // Atualizar interface do jogo se estiver ativo
-  if (gameState.gameStarted) {
-    updateGameInterface();
+/* ============================================================
+   AUDIO — synthesized, no assets
+   ============================================================ */
+let audioCtx = null;
+function ensureAudio() {
+  if (!gameState.soundOn) return null;
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { return null; }
   }
-
-  // Atualizar botão "Fora" se estiver no arco e flecha
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+function playTone(freq, dur, type = "sine", gain = 0.12) {
+  const ctx = ensureAudio(); if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(gain, ctx.currentTime + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(); osc.stop(ctx.currentTime + dur + 0.02);
+}
+function playNoise(dur, filterFreq, gain = 0.18) {
+  const ctx = ensureAudio(); if (!ctx) return;
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  const src = ctx.createBufferSource(); src.buffer = buffer;
+  const flt = ctx.createBiquadFilter(); flt.type = "lowpass"; flt.frequency.value = filterFreq;
+  const g = ctx.createGain(); g.gain.value = gain;
+  src.connect(flt).connect(g).connect(ctx.destination);
+  src.start(); src.stop(ctx.currentTime + dur);
+}
+function soundForScore(value) {
+  if (!gameState.soundOn) return;
   if (gameState.selectedGame === "archery") {
-    const missBtn = document.querySelector(".score-btn.archery-miss");
-    if (missBtn) {
-      missBtn.innerHTML = `❌<br>${t.miss}`;
-      missBtn.title = t.missTitle;
-    }
+    playNoise(0.08, 2200, 0.12); // thwack
+    if (value > 0) playTone(300 + value * 40, 0.14, "sine", 0.1);
+  } else {
+    playNoise(0.12, 900 + value * 12, 0.2); // splat
+    if (value > 0) playTone(160 + value * 6, 0.1, "triangle", 0.08);
   }
-
-  // Atualizar botões de idioma ativos
-  document.querySelectorAll(".lang-btn").forEach((btn) => {
-    btn.classList.remove("active");
-  });
-  const currentLangBtn = document.querySelector(
-    `.lang-btn[onclick*="${gameState.language}"]`
-  );
-  if (currentLangBtn) currentLangBtn.classList.add("active");
-
-  // Atualizar outros elementos
-  const endBtn = document.querySelector(".end-btn");
-  if (endBtn) endBtn.textContent = t.endGame;
-
-  const newGameBtn = document.querySelector(".new-game-btn");
-  if (newGameBtn) newGameBtn.textContent = t.newGame;
-
-  const scoreboardTitle = document.querySelector("#scoreboardTitle");
-  if (scoreboardTitle) scoreboardTitle.textContent = t.realTimeScoreboard;
-
-  const achievementsTitle = document.querySelector("#achievementsTitle");
-  if (achievementsTitle) achievementsTitle.textContent = t.achievements;
-
-  const individualStatsTitle = document.querySelector("#individualStatsTitle");
-  if (individualStatsTitle)
-    individualStatsTitle.textContent = t.individualStats;
-
-  // Atualizar nomes dos jogos selecionados
-  const selectedGameName = document.querySelector("#selectedGameName");
-  if (selectedGameName) {
-    selectedGameName.textContent =
-      gameState.selectedGame === "archery" ? t.archery : t.paintball;
-  }
-
-  // Atualizar ícones dos jogos
-  const selectedGameIcon = document.querySelector("#selectedGameIcon");
-  if (selectedGameIcon && gameState.selectedGame) {
-    const iconSrc =
-      gameState.selectedGame === "archery"
-        ? "Tiro ao Arco.png"
-        : "Paintball.png";
-    const iconAlt =
-      gameState.selectedGame === "archery" ? "Arco e Flecha" : "Paintball";
-    selectedGameIcon.innerHTML = `<img src="${iconSrc}" alt="${iconAlt}" class="game-icon-img">`;
-  }
+  if (value === 0) playTone(110, 0.18, "sine", 0.09);
 }
+function winFanfare() {
+  if (!gameState.soundOn) return;
+  const notes = [523, 659, 784, 1047];
+  notes.forEach((n, i) => setTimeout(() => playTone(n, 0.3, "triangle", 0.12), i * 120));
+}
+function toggleSound() {
+  gameState.soundOn = !gameState.soundOn;
+  const btn = document.getElementById("soundBtn");
+  const icon = btn.querySelector(".fab__icon");
+  icon.textContent = gameState.soundOn ? "🔊" : "🔇";
+  btn.classList.toggle("fab--off", !gameState.soundOn);
+  if (gameState.soundOn) { ensureAudio(); playTone(660, 0.1); }
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+function celebrate() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+  ctx.scale(dpr, dpr);
+  const W = window.innerWidth, H = window.innerHeight;
+  const colors = ["#5fe08c", "#ffd97a", "#ff8a3d", "#7fd0c4", "#f5c451", "#ffffff"];
+  const pieces = [];
+  for (let i = 0; i < 160; i++) {
+    pieces.push({
+      x: W / 2 + (Math.random() - 0.5) * 120,
+      y: H * 0.28,
+      vx: (Math.random() - 0.5) * 12,
+      vy: Math.random() * -14 - 4,
+      size: Math.random() * 8 + 4,
+      color: colors[(Math.random() * colors.length) | 0],
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.4,
+      shape: Math.random() > 0.5 ? "rect" : "circle",
+    });
+  }
+  let frame = 0;
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    frame++;
+    let alive = false;
+    pieces.forEach((p) => {
+      p.vy += 0.35; p.x += p.vx; p.y += p.vy; p.vx *= 0.99; p.rot += p.vr;
+      if (p.y < H + 30) alive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, 1 - frame / 200);
+      if (p.shape === "rect") ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      else { ctx.beginPath(); ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+    });
+    if (alive && frame < 220) requestAnimationFrame(tick);
+    else ctx.clearRect(0, 0, W, H);
+  }
+  tick();
+}
+
+/* ============================================================
+   AMBIENCE PARTICLES (fireflies)
+   ============================================================ */
+let ambienceRAF = null;
+function startAmbience() {
+  const canvas = document.getElementById("ambience");
+  const ctx = canvas.getContext("2d");
+  let W, H, dpr;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+  const flies = Array.from({ length: 46 }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    r: Math.random() * 1.8 + 0.6,
+    vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+    phase: Math.random() * Math.PI * 2, speed: Math.random() * 0.02 + 0.008,
+  }));
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    if (gameState.ambienceOn) {
+      flies.forEach((f) => {
+        f.x += f.vx; f.y += f.vy; f.phase += f.speed;
+        if (f.x < 0) f.x = W; if (f.x > W) f.x = 0;
+        if (f.y < 0) f.y = H; if (f.y > H) f.y = 0;
+        const glow = (Math.sin(f.phase) + 1) / 2;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r + glow * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(180,255,190,${0.15 + glow * 0.5})`;
+        ctx.shadowBlur = 8; ctx.shadowColor = "rgba(150,255,170,0.8)";
+        ctx.fill();
+      });
+    }
+    ambienceRAF = requestAnimationFrame(tick);
+  }
+  tick();
+}
+function toggleAmbience() {
+  gameState.ambienceOn = !gameState.ambienceOn;
+  const btn = document.getElementById("ambienceBtn");
+  btn.classList.toggle("fab--off", !gameState.ambienceOn);
+  if (!gameState.ambienceOn) {
+    const canvas = document.getElementById("ambience");
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+  }
+  haptic(6);
+}
+
+/* ---------- Boot ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  applyTranslations();
+  renderPlayers();
+  startAmbience();
+  const nameInput = document.getElementById("playerName");
+  if (nameInput) nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addPlayer(); } });
+  const roundsInput = document.getElementById("roundsInput");
+  if (roundsInput) roundsInput.addEventListener("change", () => {
+    let v = Math.min(100, Math.max(1, parseInt(roundsInput.value, 10) || 1));
+    roundsInput.value = v; gameState.totalRounds = v;
+  });
+});
+
+/* Expose handlers used via inline onclick */
+window.selectGame = selectGame;
+window.backToSelection = backToSelection;
+window.addPlayer = addPlayer;
+window.stepRounds = stepRounds;
+window.startGame = startGame;
+window.endGame = endGame;
+window.newGame = newGame;
+window.changeLanguage = changeLanguage;
+window.toggleSound = toggleSound;
+window.toggleAmbience = toggleAmbience;

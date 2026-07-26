@@ -1,165 +1,223 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque Aventura - Sistema de Pontuação</title>
-    <meta name="description" content="Sistema de pontuação para Arco e Flecha e Paintball">
-    <meta name="theme-color" content="#32CD32">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="logo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Parque Aventura — Pontuação</title>
+  <meta name="description" content="Sistema de pontuação imersivo para Arco e Flecha e Paintball no Parque Aventura." />
+  <meta name="theme-color" content="#0a1f14" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo-container">
-                <img src="logo.png" alt="Parque Aventura" class="logo">
-            </div>
-            <h1>Parque Aventura</h1>
-            <p>Sistema de Pontuação</p>
-        </header>
+  <!-- Atmospheric background -->
+  <div class="scene" aria-hidden="true">
+    <div class="scene__sky"></div>
+    <div class="scene__sun"></div>
+    <div class="scene__mtn scene__mtn--far"></div>
+    <div class="scene__mtn scene__mtn--mid"></div>
+    <div class="scene__trees"></div>
+    <div class="scene__fog scene__fog--1"></div>
+    <div class="scene__fog scene__fog--2"></div>
+    <canvas id="ambience" class="scene__particles"></canvas>
+    <div class="scene__vignette"></div>
+  </div>
 
-        <!-- Game Selection Screen -->
-        <div id="gameSelection" class="game-selection screen active">
-            <h2 class="section-title">Escolha a Atividade</h2>
-            <div class="game-cards">
-                <div class="game-card" onclick="selectGame('archery')">
-                    <div class="game-icon">
-                        <img src="Tiro ao Arco.png" alt="Arco e Flecha" class="game-icon-img">
-                    </div>
-                    <h3>Arco e Flecha</h3>
-                </div>
-                <div class="game-card" onclick="selectGame('paintball')">
-                    <div class="game-icon">
-                        <img src="Paintball.png" alt="Paintball" class="game-icon-img">
-                    </div>
-                    <h3>Paintball</h3>
-                </div>
-            </div>
-            
-            <!-- Seletor de idioma apenas na tela inicial -->
-            <div class="language-selector">
-                <div class="language-buttons">
-                    <button class="lang-btn active" onclick="changeLanguage('pt')" title="Português">
-                        <span class="fi fi-pt"></span>
-                    </button>
-                    <button class="lang-btn" onclick="changeLanguage('en')" title="English">
-                        <span class="fi fi-gb"></span>
-                    </button>
-                    <button class="lang-btn" onclick="changeLanguage('fr')" title="Français">
-                        <span class="fi fi-fr"></span>
-                    </button>
-                    <button class="lang-btn" onclick="changeLanguage('de')" title="Deutsch">
-                        <span class="fi fi-de"></span>
-                    </button>
-                    <button class="lang-btn" onclick="changeLanguage('it')" title="Italiano">
-                        <span class="fi fi-it"></span>
-                    </button>
-                </div>
-            </div>
+  <canvas id="confetti" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Floating controls -->
+  <div class="float-controls">
+    <button class="fab" id="soundBtn" onclick="toggleSound()" title="Som" aria-label="Som">
+      <span class="fab__icon" data-on>🔊</span>
+    </button>
+    <button class="fab" id="ambienceBtn" onclick="toggleAmbience()" title="Ambiente" aria-label="Ambiente">
+      <span class="fab__icon">✨</span>
+    </button>
+  </div>
+
+  <main class="app">
+    <!-- Header -->
+    <header class="masthead">
+      <div class="masthead__logo">
+        <img src="logo.png" alt="" class="masthead__logo-img" />
+      </div>
+      <div class="masthead__text">
+        <h1 class="masthead__title" data-i18n="title">Parque Aventura</h1>
+        <p class="masthead__subtitle" data-i18n="subtitle">Sistema de Pontuação</p>
+      </div>
+    </header>
+
+    <!-- ░░ SCREEN 1 — Game selection ░░ -->
+    <section id="gameSelection" class="screen screen--active">
+      <p class="eyebrow" data-i18n="chooseActivity">Escolha a Atividade</p>
+
+      <div class="game-cards">
+        <button class="game-card game-card--archery" onclick="selectGame('archery')" type="button">
+          <div class="game-card__glow"></div>
+          <div class="game-card__art">
+            <svg viewBox="0 0 120 120" class="art-target" aria-hidden="true">
+              <circle cx="60" cy="60" r="56" class="ring ring-1" />
+              <circle cx="60" cy="60" r="45" class="ring ring-3" />
+              <circle cx="60" cy="60" r="34" class="ring ring-5" />
+              <circle cx="60" cy="60" r="23" class="ring ring-7" />
+              <circle cx="60" cy="60" r="12" class="ring ring-10" />
+              <circle cx="60" cy="60" r="4" class="ring ring-core" />
+              <g class="art-arrow">
+                <line x1="112" y1="8" x2="64" y2="56" />
+                <polygon points="64,56 72,54 66,62" />
+              </g>
+            </svg>
+          </div>
+          <h3 class="game-card__name" data-i18n="archery">Arco e Flecha</h3>
+          <span class="game-card__cta" data-i18n="start">Iniciar</span>
+        </button>
+
+        <button class="game-card game-card--paintball" onclick="selectGame('paintball')" type="button">
+          <div class="game-card__glow"></div>
+          <div class="game-card__art">
+            <svg viewBox="0 0 120 120" class="art-splat" aria-hidden="true">
+              <path class="splat-blob" d="M60 18c9 0 13 8 21 10s15-3 20 6-2 15 2 23-9 14-6 23-9 12-18 11-13 7-22 5-12-9-21-11-16 2-20-7 3-15-1-23 8-14 5-23 8-13 17-12 12-8 21-8Z"/>
+              <circle class="splat-dot splat-dot--a" cx="42" cy="44" r="7"/>
+              <circle class="splat-dot splat-dot--b" cx="80" cy="52" r="5"/>
+              <circle class="splat-dot splat-dot--c" cx="62" cy="78" r="6"/>
+            </svg>
+          </div>
+          <h3 class="game-card__name" data-i18n="paintball">Paintball</h3>
+          <span class="game-card__cta" data-i18n="start">Iniciar</span>
+        </button>
+      </div>
+
+      <div class="language-selector">
+        <div class="language-buttons">
+          <button class="lang-btn lang-btn--active" onclick="changeLanguage('pt')" title="Português" type="button"><span class="fi fi-pt"></span></button>
+          <button class="lang-btn" onclick="changeLanguage('en')" title="English" type="button"><span class="fi fi-gb"></span></button>
+          <button class="lang-btn" onclick="changeLanguage('fr')" title="Français" type="button"><span class="fi fi-fr"></span></button>
+          <button class="lang-btn" onclick="changeLanguage('de')" title="Deutsch" type="button"><span class="fi fi-de"></span></button>
+          <button class="lang-btn" onclick="changeLanguage('it')" title="Italiano" type="button"><span class="fi fi-it"></span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░ SCREEN 2 — Player setup ░░ -->
+    <section id="playerSetup" class="screen">
+      <button class="ghost-back" onclick="backToSelection()" type="button">
+        <span aria-hidden="true">←</span> <span data-i18n="back">Voltar</span>
+      </button>
+
+      <div class="game-badge">
+        <span class="game-badge__icon" id="selectedGameIcon">🏹</span>
+        <span class="game-badge__name" id="selectedGameName">Arco e Flecha</span>
+      </div>
+
+      <h2 class="panel-title" data-i18n="playerSetup">Configuração dos Jogadores</h2>
+
+      <div class="glass panel">
+        <div class="input-row">
+          <input type="text" id="playerName" data-i18n-ph="playerName" placeholder="Nome do jogador" maxlength="20" autocomplete="off" />
+          <button class="btn btn--add" onclick="addPlayer()" type="button" data-i18n="add">Adicionar</button>
+        </div>
+        <div class="players-list" id="playersList"></div>
+        <p class="players-hint" id="playersHint" data-i18n="playersHint">Adiciona pelo menos um jogador para começar.</p>
+      </div>
+
+      <div class="glass panel rounds-panel">
+        <label for="roundsInput" class="rounds-label" data-i18n="roundsLabel">Número de Rondas</label>
+        <div class="stepper">
+          <button class="stepper__btn" onclick="stepRounds(-1)" type="button" aria-label="-">−</button>
+          <input type="number" id="roundsInput" value="20" min="1" max="100" />
+          <button class="stepper__btn" onclick="stepRounds(1)" type="button" aria-label="+">+</button>
+        </div>
+      </div>
+
+      <button id="startGameBtn" class="btn btn--primary btn--block" onclick="startGame()" type="button" disabled data-i18n="startGame">Iniciar Jogo</button>
+    </section>
+
+    <!-- ░░ SCREEN 3 — Game ░░ -->
+    <section id="gameScreen" class="screen">
+      <div class="hud glass">
+        <div class="hud__player">
+          <span class="hud__avatar" id="hudAvatar">1</span>
+          <div class="hud__meta">
+            <span class="hud__now" data-i18n="current">Atual</span>
+            <span class="hud__name" id="currentPlayer">Jogador 1</span>
+          </div>
+        </div>
+        <div class="hud__stats">
+          <div class="hud__stat"><b id="currentScore">0</b><small data-i18n="points">pts</small></div>
+          <div class="hud__stat"><b id="currentAccuracy">0%</b><small data-i18n="accuracy">precisão</small></div>
+        </div>
+        <div class="hud__progress">
+          <svg class="ring-progress" viewBox="0 0 44 44" aria-hidden="true">
+            <circle class="ring-progress__track" cx="22" cy="22" r="19" />
+            <circle class="ring-progress__fill" id="progressRing" cx="22" cy="22" r="19" />
+          </svg>
+          <div class="hud__round">
+            <b id="currentRoundText">1</b>
+            <small id="totalRoundsText">/ 20</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="play-area">
+        <!-- Archery hero target (only visible for archery) -->
+        <div class="target-stage" id="targetStage" hidden>
+          <svg viewBox="0 0 200 200" class="big-target" id="bigTarget" aria-hidden="true">
+            <circle cx="100" cy="100" r="96" class="bt ring-1" />
+            <circle cx="100" cy="100" r="86" class="bt ring-2" />
+            <circle cx="100" cy="100" r="74" class="bt ring-3" />
+            <circle cx="100" cy="100" r="62" class="bt ring-4" />
+            <circle cx="100" cy="100" r="50" class="bt ring-5" />
+            <circle cx="100" cy="100" r="40" class="bt ring-6" />
+            <circle cx="100" cy="100" r="30" class="bt ring-7" />
+            <circle cx="100" cy="100" r="21" class="bt ring-8" />
+            <circle cx="100" cy="100" r="13" class="bt ring-9" />
+            <circle cx="100" cy="100" r="6" class="bt ring-10" />
+            <g id="shotMarks"></g>
+          </svg>
         </div>
 
-        <!-- Player Setup Screen -->
-        <div id="playerSetup" class="screen">
-            <h2>Configuração dos Jogadores</h2>
-            
-            <div class="game-info">
-                <div class="game-icon" id="selectedGameIcon">
-                    <img src="Tiro ao Arco.png" alt="Arco e Flecha" class="game-icon-img">
-                </div>
-                <span class="game-name" id="selectedGameName">Arco e Flecha</span>
-            </div>
-            
-            <div class="player-input-section">
-                <div class="input-group">
-                    <input type="text" id="playerName" placeholder="Nome do jogador" maxlength="20">
-                    <button class="add-btn" onclick="addPlayer()">Adicionar Jogador</button>
-                </div>
-                
-                <div class="players-list" id="playersList">
-                    <!-- Players will be added here -->
-                </div>
-            </div>
-            
-            <div class="game-settings">
-                <label for="roundsInput">Número de Rondas</label>
-                <input type="number" id="roundsInput" value="20" min="1" max="100">
-            </div>
-            
-            <button id="startGameBtn" class="start-btn" onclick="startGame()" disabled>Iniciar Jogo</button>
+        <div class="score-options" id="scoreOptions"></div>
+      </div>
+
+      <div class="glass scoreboard">
+        <div class="scoreboard__head">
+          <h3 id="scoreboardTitle">Placar em tempo real</h3>
         </div>
+        <div class="scoreboard-content" id="scoreboardContent"></div>
+      </div>
 
-        <!-- Game Screen -->
-        <div id="gameScreen" class="screen">
-            <div class="game-header">
-                <div class="current-player" id="currentPlayer">Jogador 1</div>
-                <div class="player-stats-mini">
-                    <span id="currentScore">0 pts</span>
-                    <span id="currentAccuracy">0%</span>
-                </div>
-                <div class="game-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-text">
-                        <span id="currentRoundText">Ronda 1</span>
-                        <span id="totalRoundsText">de 6</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="score-options" id="scoreOptions">
-                <!-- Score buttons will be generated here -->
-            </div>
-            
-            <div class="scoreboard">
-                <h3 id="scoreboardTitle">PLACAR EM TEMPO REAL</h3>
-                <div class="scoreboard-content" id="scoreboardContent">
-                    <!-- Scoreboard will be generated here -->
-                </div>
-            </div>
-            
-            <button class="end-btn" onclick="endGame()">Terminar Jogo</button>
-        </div>
+      <button class="btn btn--danger btn--block" onclick="endGame()" type="button" data-i18n="endGame">Terminar Jogo</button>
+    </section>
 
-        <!-- Results Screen -->
-        <div id="resultsScreen" class="screen">
-            <h2 id="finalResultsTitle">Resultados Finais</h2>
-            
-            <div class="final-results" id="finalResults">
-                <!-- Final results will be generated here -->
-            </div>
-            
-            <div class="achievement-section">
-                <h3 id="achievementsTitle">Conquistas e Estatísticas</h3>
-                <div class="achievements-grid" id="achievementsGrid">
-                    <!-- Achievements will be generated here -->
-                </div>
-            </div>
-            
-            <div class="individual-stats-section" id="individualStatsSection">
-                <h3 id="individualStatsTitle">Estatísticas Individuais Detalhadas</h3>
-                <div class="individual-stats-content" id="individualStatsContent">
-                    <!-- Individual stats will be generated here -->
-                </div>
-            </div>
-            
-            <button class="new-game-btn" onclick="newGame()">Novo Jogo</button>
-        </div>
-        
+    <!-- ░░ SCREEN 4 — Results ░░ -->
+    <section id="resultsScreen" class="screen">
+      <h2 class="results-title" id="finalResultsTitle">Resultados Finais</h2>
 
-    </div>
+      <div class="podium" id="podium"></div>
 
-    <!-- Botão para controlar efeito de neve -->
-    <button class="snow-toggle-btn" onclick="toggleSnowfall()" title="Ativar/Desativar Neve" id="snowToggleBtn">❄️</button>
+      <div class="final-results" id="finalResults"></div>
 
-    <!-- Scripts -->
-    <script src="script.js"></script>
+      <div class="achievement-section">
+        <h3 class="panel-title" id="achievementsTitle">Conquistas e Estatísticas</h3>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+      </div>
+
+      <div class="individual-stats-section" id="individualStatsSection">
+        <h3 class="panel-title" id="individualStatsTitle">Estatísticas Individuais</h3>
+        <div class="individual-stats-content" id="individualStatsContent"></div>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn--primary btn--block" onclick="newGame()" type="button" data-i18n="newGame">Novo Jogo</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
 </body>
-</html> 
+</html>
