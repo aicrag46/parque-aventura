@@ -735,9 +735,9 @@ function renderShareCard(img) {
   let ts = ctx.createLinearGradient(0, 0, 0, 340);
   ts.addColorStop(0, "rgba(3,12,7,0.8)"); ts.addColorStop(1, "rgba(3,12,7,0)");
   ctx.fillStyle = ts; ctx.fillRect(0, 0, W, 340);
-  let bs = ctx.createLinearGradient(0, H * 0.30, 0, H);
-  bs.addColorStop(0, "rgba(3,12,7,0)"); bs.addColorStop(0.42, "rgba(3,12,7,0.85)"); bs.addColorStop(1, "rgba(3,12,7,0.97)");
-  ctx.fillStyle = bs; ctx.fillRect(0, H * 0.30, W, H * 0.70);
+  let bs = ctx.createLinearGradient(0, H * 0.40, 0, H);
+  bs.addColorStop(0, "rgba(3,12,7,0)"); bs.addColorStop(0.38, "rgba(3,12,7,0.85)"); bs.addColorStop(1, "rgba(3,12,7,0.97)");
+  ctx.fillStyle = bs; ctx.fillRect(0, H * 0.40, W, H * 0.60);
 
   // Header — real brand logo lockup (carries the name) + game/date
   const dateStr = s.date.toLocaleDateString(gameState.language, { day: "2-digit", month: "long", year: "numeric" });
@@ -754,7 +754,7 @@ function renderShareCard(img) {
   // Champion spotlight
   const champ = s.ranked[0];
   const rest = s.ranked.slice(1);
-  const cy0 = 560;
+  const cy0 = Math.round(H * 0.55);
   ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
   ctx.font = "94px sans-serif";
   ctx.fillText("🥇", W / 2, cy0);
