@@ -558,6 +558,17 @@ input:focus { outline: none; border-color: var(--leaf-400); box-shadow: 0 0 0 3p
 .composer__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .composer__file { display: grid; place-items: center; text-align: center; cursor: pointer; }
 .composer__file span { pointer-events: none; }
+.composer__cta {
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  text-decoration: none; text-align: left;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  background: rgba(53,194,107,0.10); border: 1px solid rgba(53,194,107,0.28);
+  transition: background 0.25s, border-color 0.25s;
+}
+.composer__cta:hover { background: rgba(53,194,107,0.18); border-color: rgba(53,194,107,0.5); }
+.composer__cta-icon { width: 26px; height: 26px; flex: none; color: var(--leaf-300); }
+.composer__cta-text { font-size: 0.88rem; line-height: 1.35; color: var(--cream-dim); }
+.composer__cta-handle { display: block; color: var(--leaf-300); font-weight: 700; font-family: var(--font-display); }
 
 /* ============================================================
    FLOATING CONTROLS

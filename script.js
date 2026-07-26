@@ -772,7 +772,7 @@ function renderShareCard(img) {
     ctx.fillText(t("results").toUpperCase(), W / 2, listTop);
     listTop += 34;
   }
-  const listBottom = H - 138;
+  const listBottom = H - 92;
   const rowH = Math.min(78, (listBottom - listTop) / Math.max(1, rest.length));
   const avatarR = Math.min(20, rowH * 0.27);
   const nameF = Math.min(34, Math.max(19, rowH * 0.44));
@@ -804,19 +804,8 @@ function renderShareCard(img) {
   });
 
   // Footer stat
-  ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = `600 23px ${F}`;
-  ctx.fillText(`${t("totalAccuracy")}: ${s.totalAcc}%  •  ${s.rounds} ${t("currentRound").toLowerCase()}s`, W / 2, H - 112);
-
-  // Instagram share call-to-action
-  ctx.textAlign = "center"; ctx.fillStyle = "rgba(255,255,255,0.72)"; ctx.font = `600 26px ${F}`;
-  ctx.fillText(t("shareCta"), W / 2, H - 64);
-  ctx.font = `800 34px ${F}`;
-  const handleW = ctx.measureText(INSTAGRAM_HANDLE).width;
-  const glyphSize = 32, gap = 16;
-  const startX = W / 2 - (glyphSize + gap + handleW) / 2;
-  drawInsta(ctx, startX + glyphSize / 2, H - 34, glyphSize);
-  ctx.textAlign = "left"; ctx.fillStyle = "#5fe08c"; ctx.font = `800 34px ${F}`;
-  ctx.fillText(INSTAGRAM_HANDLE, startX + glyphSize + gap, H - 24);
+  ctx.textAlign = "center"; ctx.fillStyle = "#5fe08c"; ctx.font = `600 25px ${F}`;
+  ctx.fillText(`${t("totalAccuracy")}: ${s.totalAcc}%  •  ${s.rounds} ${t("currentRound").toLowerCase()}s`, W / 2, H - 46);
 }
 
 function clip(ctx, text, maxW) {
@@ -860,6 +849,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (dl) dl.addEventListener("click", downloadCard);
   const sh = document.getElementById("shareCardBtn");
   if (sh) sh.addEventListener("click", shareCard);
+  const instaHandle = document.getElementById("instaHandle");
+  if (instaHandle) instaHandle.textContent = INSTAGRAM_HANDLE;
+  const instaCta = document.getElementById("instaCta");
+  if (instaCta) instaCta.href = "https://instagram.com/" + INSTAGRAM_HANDLE.replace(/^@/, "");
 });
 
 /* ---------- Boot ---------- */
