@@ -55,14 +55,4 @@ parque-aventura/
 └── README.md
 ```
 
-## 🖥️ Correr localmente
 
-```bash
-# Abrir index.html diretamente, ou servir:
-python3 -m http.server 8000
-# → http://localhost:8000
-```
-
----
-
-Feito com 💚 para o Parque Aventura.
